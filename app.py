@@ -45,7 +45,7 @@ if main_menu == "HOME":
                     )
         
     with cols[1]:
-        st.image("sakinah-mart.png", use_column_width=True)
+        st.image("sakinah-mart.png")
 
     st.markdown("""<div style="text-align: justify;">
     Sakinah Mart adalah ritel modern berbasis syariah dengan 20 cabang di Jawa Timur, 
