@@ -36,7 +36,7 @@ if main_menu == "HOME":
         st.markdown(
                         """
                         <a href="https://sakinahmart.com/" target="_blank">
-                            <button style="background-color:#009b4c; color:white; border:none; padding:10px 20px; text-align:center; text-decoration:none; font-size:14px; border-radius:20px; cursor:pointer;">
+                            <button style="background-color:#009b4c; color:white; border:none; padding:10px 50px; text-align:center; text-decoration:none; font-size:14px; border-radius:20px; cursor:pointer;">
                                 Sakinah Mart Website
                             </button>
                         </a>
@@ -45,7 +45,10 @@ if main_menu == "HOME":
                     )
         
     with cols[1]:
-        st.image("sakinah-mart.png", use_container_width=True)
+        try:
+            st.image("sakinah-mart.png", use_container_width=True)
+        except TypeError:
+            st.image("sakinah-mart.png", use_column_width=True)
 
     st.markdown("""<div style="text-align: justify;">
     Sakinah Mart adalah ritel modern berbasis syariah dengan 20 cabang di Jawa Timur, 
