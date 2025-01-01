@@ -25,7 +25,7 @@ def customers(df):
     cols = st.columns(2)
     with cols[0]:
         plt.figure(figsize=(6, 6))
-        bars = plt.bar(transaction_per_day.index, transaction_per_day.values, color='skyblue')
+        bars = plt.bar(transaction_per_day.index, transaction_per_day.values, color='#abce19')
         for bar in bars:
             yval = bar.get_height()
             plt.text(bar.get_x() + bar.get_width()/2, yval, int(yval), va='bottom', ha='center', fontsize=12)
@@ -49,6 +49,6 @@ def customers(df):
                 labels=weekend_weekday_counts.index, 
                 autopct=lambda pct: func(pct, weekend_weekday_counts),
                 startangle=90, 
-                colors=['#ff9999', '#66b3ff'])
+                colors=['#009b4c', '#abce19'])
         plt.title('Aktivitas Pelanggan: Weekend vs Weekday')
         st.pyplot(plt.gcf())
