@@ -4,11 +4,12 @@ def project_description():
     cols = st.columns(2)
     with cols[0]:
         st.header("HOME")
-        st.markdown("**Project ini menampilkan analisis data\n dari hasil penjualan Sakinah Mart pada tahun 2023.**")
+        st.markdown("**Selamat datang di Sakinah Mart Analytics!**")
+        st.markdown("Proyek ini menghadirkan visualisasi dan analisis mendalam dari data penjualan Sakinah Mart sepanjang tahun 2023.")
         st.markdown(
                         """
                         <a href="https://sakinahmart.com/" target="_blank">
-                            <button style="background-color:#009b4c; color:white; border:none; padding:10px 15px; text-align:center; text-decoration:none; font-size:14px; border-radius:20px; cursor:pointer;">
+                            <button style="background-color:#009b4c; color:white; border:none; padding:10px 25px; text-align:center; text-decoration:none; font-size:14px; border-radius:20px; cursor:pointer;">
                                 Sakinah Mart Website
                             </button>
                         </a>

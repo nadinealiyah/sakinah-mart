@@ -8,7 +8,15 @@ def customers(df):
     df_unique = df.drop_duplicates(subset='NO.TRANSAKSI')
     df_unique['DATE'] = pd.to_datetime(df_unique['DATE'])
     df_unique['MONTH'] = df_unique['DATE'].dt.month_name()
-    selected_month = st.selectbox("Pilih Bulan:", df_unique['MONTH'].unique())
+
+    with st.expander("Filter Date"):
+        cols = st.columns(2)
+        with cols[0]:
+            selected_month = st.selectbox("Select Month:", df_unique['MONTH'].unique())
+        with cols[1]:
+            selected_week = st.selectbox("Select week:", df_unique['MONTH'].unique())
+        st.write(f"**Minggu ke-{selected_week} bulan {selected_month}**")        
+
     filtered_df = df_unique[df_unique['MONTH'] == selected_month]
 
     total_customers = filtered_df['NO.TRANSAKSI'].nunique()
@@ -30,7 +38,7 @@ def customers(df):
             yval = bar.get_height()
             plt.text(bar.get_x() + bar.get_width()/2, yval, int(yval), va='bottom', ha='center', fontsize=12)
 
-        plt.title(f'Jumlah Transaksi Per Hari di Bulan {selected_month} (Senin - Minggu)', fontsize=14)
+        plt.title(f'Aktivitas Pelanggan Hari-an', fontsize=14)
         plt.xlabel('Hari', fontsize=12)
         plt.ylabel('Jumlah Transaksi', fontsize=12)
         plt.tight_layout()

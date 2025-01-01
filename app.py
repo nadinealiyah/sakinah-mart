@@ -6,6 +6,8 @@ from option_menu.home.project_description import project_description
 from option_menu.eda.items import items
 from option_menu.eda.customers import customers
 
+st.set_page_config(layout="wide")
+
 # Menampilkan menu di sidebar
 with st.sidebar:
     main_menu = option_menu("Sakinah Mart Analytics", 
