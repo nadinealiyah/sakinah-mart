@@ -7,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from option-menu.home.project_description import project_description
+
 # Menampilkan menu di sidebar
 with st.sidebar:
     main_menu = option_menu("Sakinah Mart Analytics", 
@@ -29,35 +31,7 @@ record_count = len(df)
 info_data = f"Data contains from **{start_date}** to **{end_date}** (Record data: {record_count})"
 
 if main_menu == "HOME":
-    cols = st.columns(2)
-    with cols[0]:
-        st.header("HOME")
-        st.markdown("**Project ini menampilkan analisis data\n dari hasil penjualan Sakinah Mart pada tahun 2023.**")
-        st.markdown(
-                        """
-                        <a href="https://sakinahmart.com/" target="_blank">
-                            <button style="background-color:#009b4c; color:white; border:none; padding:10px 50px; text-align:center; text-decoration:none; font-size:14px; border-radius:20px; cursor:pointer;">
-                                Sakinah Mart Website
-                            </button>
-                        </a>
-                        """,
-                        unsafe_allow_html=True
-                    )
-        
-    with cols[1]:
-        try:
-            st.image("sakinah-mart.png", use_container_width=True)
-        except TypeError:
-            st.image("sakinah-mart.png", use_column_width=True)
 
-    st.markdown("""<div style="text-align: justify;">
-    Sakinah Mart adalah ritel modern berbasis syariah dengan 20 cabang di Jawa Timur, 
-    yang bertujuan memberikan manfaat bagi masyarakat melalui produk berkualitas dengan harga terjangkau. 
-    Namun, data transaksi yang melimpah seperti waktu pembelian, produk yang dibeli, dan frekuensi pembelian belum diolah secara optimal, 
-    sehingga berisiko menimbulkan waste of inventory.
-    Untuk mengatasi hal ini dan tetap bersaing di pasar, project kali ini menggunakan algoritma Apriori untuk mengidentifikasi pola pembelian konsumen, seperti product bundling dan penataan letak barang, 
-    serta metode Vector Autoregressive (VAR) untuk memprediksi kebutuhan pelanggan dan mengelola persediaan secara efisien. Kombinasi kedua metode ini diharapkan dapat mengoptimalkan strategi penjualan, meningkatkan efisiensi operasional, dan menjaga kepuasan pelanggan.
-    </div>""", unsafe_allow_html=True)
 
 elif main_menu == "Exploratory Data Analysis (EDA)":
     st.header("Exploratory Data Analysis (EDA)")
