@@ -7,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from option_menu.home.project_description import project_description
+
 # Menampilkan menu di sidebar
 with st.sidebar:
     main_menu = option_menu("Sakinah Mart Analytics", 
@@ -29,7 +31,7 @@ record_count = len(df)
 info_data = f"Data contains from **{start_date}** to **{end_date}** (Record data: {record_count})"
 
 if main_menu == "HOME":
-    print("nadine")
+    project_description()
 
 elif main_menu == "Exploratory Data Analysis (EDA)":
     st.header("Exploratory Data Analysis (EDA)")
