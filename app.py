@@ -29,7 +29,7 @@ with st.sidebar:
         sac.MenuItem('Pola Pembelian', icon='basket2-fill', description='Apriori Implementation'),
         sac.MenuItem('Prediksi Stok Barang', icon='bar-chart-line-fill', description='Vector Autoregressive Implementation'),
         sac.MenuItem(type='divider'),
-    ], size='lg', open_all=True, variant='left-bar', indent=30)
+    ], size='md', open_all=True, variant='left-bar', indent=30)
     st.caption("Created By: Nadine Aliyah Mustafa")
 
 if selected_menu == "HOME":
