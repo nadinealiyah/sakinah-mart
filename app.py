@@ -8,42 +8,33 @@ from option_menu.eda.customers import customers
 
 st.set_page_config(layout="wide")
 
-# Menampilkan menu di sidebar
-with st.sidebar:
-    main_menu = option_menu("Sakinah Mart Analytics", 
-                            ["HOME", "Exploratory Data Analysis (EDA)", "Pola Pembelian", "Prediksi Stok Barang"], 
-                            icons=["house-fill", "pie-chart-fill", "basket2-fill", "bar-chart-line-fill"],
-                            menu_icon="shop",
-                            default_index=0)
-    
-    st.markdown("""<div style="text-align: center;">Created By: Nadine Aliyah Mustafa</div>""", unsafe_allow_html=True)
-
 # import data
 df = pd.read_excel('final_data.xlsx')
 df['QTY'] = pd.to_numeric(df['QTY'], errors='coerce')
 
-# Info data
+# info data
 df['DATE'] = pd.to_datetime(df['DATE'])
 start_date = df['DATE'].min().date() 
 end_date = df['DATE'].max().date() 
 record_count = len(df)
 info_data = f"Data contains from **{start_date}** to **{end_date}** (Record data: {record_count})"
 
-if main_menu == "HOME":
+with st.sidebar:
+    st.markdown("# Sakinah Mart Analytics")
+    selected_menu = sac.menu([
+        sac.MenuItem('HOME', icon='house-fill'),
+        sac.MenuItem('EDA', icon='pie-chart-fill', description='Exploratory Data Analysis', children=[
+            sac.MenuItem('Customers', icon='people-fill'),
+            sac.MenuItem('Items', icon='box-seam-fill')]),
+        sac.MenuItem('Pola Pembelian', icon='basket2-fill', description='Apriori Implementation'),
+        sac.MenuItem('Prediksi Stok Barang', icon='bar-chart-line-fill', description='Vector Autoregressive Implementation'),
+        sac.MenuItem(type='divider'),
+    ], size='lg', open_all=True, variant='left-bar', indent=30)
+    st.caption("Created By: Nadine Aliyah Mustafa")
+
+if selected_menu == "HOME":
     project_description()
-
-elif main_menu == "Exploratory Data Analysis (EDA)":
-    st.header("Exploratory Data Analysis (EDA)")
-
-    button = sac.buttons(
-        items=["Customers", "Items"],
-        index=0,
-        direction='horizontal',
-        radius='lg',
-        return_index=False,
-    )
-
-    if button == "Customers":
-        customers(df, info_data)
-    elif button == "Items":
-        items(df)
+elif selected_menu == "Customers":
+    customers(df, info_data)
+elif selected_menu == "Items":
+    items(df)

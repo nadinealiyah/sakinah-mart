@@ -5,25 +5,28 @@ import streamlit as st
 import streamlit_shadcn_ui as ui
 
 def customers(df, info_data):
+    st.header("EDA - Customers")
     df_unique = df.drop_duplicates(subset='NO.TRANSAKSI')
     df_unique['DATE'] = pd.to_datetime(df_unique['DATE'])
     df_unique['MONTH'] = df_unique['DATE'].dt.month_name()
 
     placeholder = st.empty()
 
-    with st.expander("Filter Date"):
-        st.caption(info_data)
-        cols = st.columns(2)
-        with cols[0]:
-            selected_month = st.selectbox("Select Month:", df_unique['MONTH'].unique())
-        with cols[1]:
-            selected_week = st.selectbox("Select week:", df_unique['MONTH'].unique())
+    cols = st.columns(2)
+    with cols[0]:
+        with st.expander("Filter Date"):
+            st.caption(info_data)
+            cols = st.columns(2)
+            with cols[0]:
+                selected_month = st.selectbox("Select Month:", df_unique['MONTH'].unique())
+            with cols[1]:
+                selected_week = st.selectbox("Select Week:", df_unique['MONTH'].unique())
     
-    placeholder.success(f"**Minggu ke-{selected_week} bulan {selected_month}**")
+    placeholder.caption(f"Based on data from Week {selected_week} of {selected_month}.")
 
     filtered_df = df_unique[df_unique['MONTH'] == selected_month]
-
     total_customers = filtered_df['NO.TRANSAKSI'].nunique()
+
     cols = st.columns(3)
     with cols[0]:
         ui.metric_card(
@@ -51,7 +54,6 @@ def customers(df, info_data):
         plt.xlabel('Day', fontsize=12)
         plt.ylabel('Total Transactions', fontsize=12)
         plt.tight_layout()
-        #plt.title(' ', pad=30)
         st.pyplot(plt.gcf())
 
     # Visualisasi minggu-an

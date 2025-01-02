@@ -5,6 +5,7 @@ import streamlit as st
 import streamlit_shadcn_ui as ui
 
 def items(df):
+    st.header("EDA - Items")
     df['DATE'] = pd.to_datetime(df['DATE'])
     df['MONTH'] = df['DATE'].dt.month_name()
 
