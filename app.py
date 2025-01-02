@@ -34,7 +34,6 @@ if main_menu == "HOME":
 
 elif main_menu == "Exploratory Data Analysis (EDA)":
     st.header("Exploratory Data Analysis (EDA)")
-    st.caption(info_data)
 
     button = sac.buttons(
         items=["Customers", "Items"],
@@ -45,6 +44,6 @@ elif main_menu == "Exploratory Data Analysis (EDA)":
     )
 
     if button == "Customers":
-        customers(df)
+        customers(df, info_data)
     elif button == "Items":
         items(df)
