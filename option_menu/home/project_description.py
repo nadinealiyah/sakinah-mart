@@ -16,6 +16,7 @@ def project_description():
                         """,
                         unsafe_allow_html=True
                     )
+        st.write("  ")
         
     with cols[1]:
         try:
