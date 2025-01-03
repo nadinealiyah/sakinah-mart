@@ -1,6 +1,5 @@
 import pandas as pd
 import streamlit as st
-from streamlit_option_menu import option_menu
 import streamlit_antd_components as sac
 from option_menu.home.project_description import project_description
 from option_menu.eda.items import items
@@ -37,4 +36,4 @@ if selected_menu == "HOME":
 elif selected_menu == "Customers":
     customers(df, info_data)
 elif selected_menu == "Items":
-    items(df)
+    items(df, info_data)
