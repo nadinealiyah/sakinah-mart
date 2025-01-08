@@ -29,7 +29,14 @@ with st.sidebar:
         sac.MenuItem('Prediksi Stok Barang', icon='bar-chart-line-fill', description='Vector Autoregressive Implementation'),
         sac.MenuItem(type='divider'),
     ], size='md', open_all=True, variant='left-bar', indent=30)
-    st.caption("Created By: Nadine Aliyah Mustafa")
+    st.markdown("<div style='text-align: center; font-size: smaller; color: #aeb2c1'>Created By: Nadine Aliyah Mustafa</div>", unsafe_allow_html=True)
+    st.markdown("<div style='text-align: center; font-size: smaller; color: #aeb2c1'>Supported By: </div>", unsafe_allow_html=True)
+    st.caption(" ")
+    cols = st.columns(5)
+    with cols[1]:
+        st.image("logo_pens.png", width=50)
+    with cols[2]:
+        st.image("logo_sakinah.png", width=100)
 
 if selected_menu == "HOME":
     project_description()
