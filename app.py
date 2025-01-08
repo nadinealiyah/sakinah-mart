@@ -16,7 +16,7 @@ df['DATE'] = pd.to_datetime(df['DATE'])
 start_date = df['DATE'].min().date() 
 end_date = df['DATE'].max().date() 
 record_count = len(df)
-info_data = f"Data contains from **{start_date}** to **{end_date}** (Record data: {record_count})"
+info_data = f"Transaction data 2023 (Record data: {record_count})"
 
 with st.sidebar:
     st.markdown("# Sakinah Mart Analytics")
@@ -34,6 +34,6 @@ with st.sidebar:
 if selected_menu == "HOME":
     project_description()
 elif selected_menu == "Customers":
-    customers(df, info_data)
+    customers(df, start_date, end_date, info_data)
 elif selected_menu == "Items":
-    items(df, info_data)
+    items(df, start_date, end_date, info_data)
