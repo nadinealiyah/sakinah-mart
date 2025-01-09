@@ -38,11 +38,11 @@ with st.sidebar:
     with cols[1]:
         logo_path = get_logo_pens()
         logo_image = Image.open(logo_path)
-        st.image(logo_image, width=60)
+        st.image(logo_image, width=50)
     with cols[2]:
         logo_path = get_logo_sakinah()
         logo_image = Image.open(logo_path)
-        st.image(logo_image)
+        st.image(logo_image, width=100)
 
 if selected_menu == "HOME":
     project_description()
