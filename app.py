@@ -1,6 +1,8 @@
 import pandas as pd
 import streamlit as st
+from PIL import Image
 import streamlit_antd_components as sac
+from option_menu.logo_img import get_logo_pens, get_logo_sakinah
 from option_menu.home.project_description import project_description
 from option_menu.eda.items import items
 from option_menu.eda.customers import customers
@@ -32,11 +34,15 @@ with st.sidebar:
     st.markdown("<div style='text-align: center; font-size: smaller; color: #aeb2c1'>Created By: Nadine Aliyah Mustafa</div>", unsafe_allow_html=True)
     st.markdown("<div style='text-align: center; font-size: smaller; color: #aeb2c1'>Supported By: </div>", unsafe_allow_html=True)
     st.caption(" ")
-    cols = st.columns(5)
+    cols = st.columns(4)
     with cols[1]:
-        st.image("logo_pens.png", width=50)
+        logo_path = get_logo_pens()
+        logo_image = Image.open(logo_path)
+        st.image(logo_image, width=60)
     with cols[2]:
-        st.image("logo_sakinah.png", width=100)
+        logo_path = get_logo_sakinah()
+        logo_image = Image.open(logo_path)
+        st.image(logo_image)
 
 if selected_menu == "HOME":
     project_description()
