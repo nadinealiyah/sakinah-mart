@@ -13,7 +13,7 @@ def items(df, start_date, end_date, info_data):
     # Filter 
     cols = st.columns(2)
     with cols[0]:
-        with st.expander("Filter Date"):
+        with st.expander("Filter"):
             dates = st.date_input(
                 label="Select the date",
                 value=(),
