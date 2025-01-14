@@ -2,9 +2,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
-import streamlit_shadcn_ui as ui
+from helper.custom_metric_card import metric_card
 
 def customers(df, start_date, end_date, info_data):
+    plt.style.use("default")
+
     st.header("EDA - Customers")
     df_unique = df.drop_duplicates(subset='NO.TRANSAKSI')
     df_unique['DATE'] = pd.to_datetime(df_unique['DATE'])
@@ -12,7 +14,7 @@ def customers(df, start_date, end_date, info_data):
     placeholder = st.empty()
 
     # Filter
-    cols = st.columns(2)
+    cols = st.columns(3)
     with cols[0]:
         with st.expander("Filter"):
             dates = st.date_input(
@@ -23,7 +25,7 @@ def customers(df, start_date, end_date, info_data):
                 help=info_data
             )
             if len(dates) != 2:
-                st.warning("Please select both start and end dates.")
+                st.warning("Please select start and end dates.")
                 st.stop()
 
             start_date, end_date = dates
@@ -64,11 +66,14 @@ def customers(df, start_date, end_date, info_data):
     # Metric Card
     cols = st.columns(3)
     with cols[0]:
-        ui.metric_card(
+        metric_card(
             title="Total Customers:",
+            icon="bi bi-people-fill",
             content=f"{total_customers}",
-            description=description
+            description=description,
+            color='#009b4c'
         )
+    st.write("")
 
     # Aktivitas pelanggan per hari
     filtered_df['DAY_OF_WEEK'] = filtered_df['DATE'].dt.day_name()
@@ -90,6 +95,8 @@ def customers(df, start_date, end_date, info_data):
             yval = bar.get_height()
             plt.text(bar.get_x() + bar.get_width() / 2, yval, int(yval), va='bottom', ha='center', fontsize=10)
 
+        plt.gca().set_facecolor("#F0F2F6")  # Warna latar belakang area grafik
+        plt.gcf().patch.set_facecolor("#F0F2F6") 
         plt.xticks(fontsize=8.5)
         plt.xlabel('Day', fontsize=12)
         plt.ylabel('Total Transactions', fontsize=12)
@@ -122,5 +129,8 @@ def customers(df, start_date, end_date, info_data):
                 colors=['#abce19', '#009b4c'],
                 textprops={'fontsize': 10}
             )
+            
+            plt.gca().set_facecolor("#F0F2F6")  # Warna latar belakang area grafik
+            plt.gcf().patch.set_facecolor("#F0F2F6") 
             plt.tight_layout()
             st.pyplot(plt.gcf())

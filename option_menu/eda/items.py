@@ -2,16 +2,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
-import streamlit_shadcn_ui as ui
+from helper.custom_metric_card import metric_card
 
 def items(df, start_date, end_date, info_data):
+    plt.style.use("default")
+
     st.header("EDA - Items")
     df['DATE'] = pd.to_datetime(df['DATE'])
 
     placeholder = st.empty()
 
     # Filter 
-    cols = st.columns(2)
+    cols = st.columns(3)
     with cols[0]:
         with st.expander("Filter"):
             dates = st.date_input(
@@ -22,7 +24,7 @@ def items(df, start_date, end_date, info_data):
                 help=info_data
             )
             if len(dates) != 2:
-                st.warning("Please select both start and end dates.")
+                st.warning("Please select start and end dates.")
                 st.stop()
 
             start_date, end_date = dates
@@ -58,8 +60,8 @@ def items(df, start_date, end_date, info_data):
         unique_items_prev = prev_filtered_df["DESCRIPTION"].nunique()
 
         # Menghitung kenaikan atau penurunan
-        total_qty_diff = total_qty - total_qty_prev
-        unique_items_diff = unique_items - unique_items_prev
+        total_qty_diff = int(total_qty - total_qty_prev)
+        unique_items_diff = int(unique_items - unique_items_prev)
 
         description_qty = f"+{total_qty_diff}" if total_qty_diff > 0 else f"{total_qty_diff}"
         description_items = f"+{unique_items_diff}" if unique_items_diff > 0 else f"{unique_items_diff}"
@@ -72,31 +74,41 @@ def items(df, start_date, end_date, info_data):
     # Metric Card
     cols = st.columns(3)
     with cols[0]:
-        ui.metric_card(
+        metric_card(
             title="Total Barang yang Dibeli:",
             content=f"{int(total_qty)}",
-            description=description_qty_text
+            description=description_qty_text,
+            color='#009b4c',
+            icon="bi bi-inboxes"
         )
     with cols[1]:
-        ui.metric_card(
+        metric_card(
             title="Jenis Barang yang Dibeli:",
             content=f"{int(unique_items)}",
-            description=description_items_text
+            description=description_items_text,
+            color='#009b4c',
+            icon="bi bi-inbox"
         )
+    st.write("")
 
     # Bar chart untuk Top 10 Barang
-    st.markdown(
-        "<div style='text-align: center; font-weight: bold; font-size: 18px;'>Top 10 Produk yang Laku Dibeli</div>",
-        unsafe_allow_html=True
-    )
     top_products = filtered_df.groupby('DESCRIPTION')['QTY'].sum().sort_values(ascending=False).head(10)
     plt.figure(figsize=(8, 3))
-    ax = sns.barplot(x=top_products.values, y=top_products.index, palette="viridis")
-    plt.xticks(fontsize=8)
-    plt.yticks(fontsize=8)
-    plt.xlabel("Jumlah Terjual", fontsize=10)
-    plt.ylabel("Deskripsi Produk", fontsize=10)
+    ax = sns.barplot(x=top_products.values, y=top_products.index, color='#abce19')
+    ax.spines['top'].set_visible(False) 
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
     for i, v in enumerate(top_products.values):
-        ax.text(int(v) + 0.2, i, f'{int(v)}', color='black', va='center', fontsize=8)
-    plt.tight_layout()
+        ax.text(int(v), i, f'{int(v)}', color='black', va='center', fontsize=7)
+
+    plt.gca().set_facecolor("#F0F2F6")  # Warna latar belakang area grafik
+    plt.gcf().patch.set_facecolor("#F0F2F6") 
+    plt.yticks(fontsize=8)
+    plt.xticks([])
+    plt.xlabel('')
+    plt.ylabel('')
+    plt.title("Top 10 Produk yang Laku Dibeli", fontsize=10)
     st.pyplot(plt.gcf())
+
+    
