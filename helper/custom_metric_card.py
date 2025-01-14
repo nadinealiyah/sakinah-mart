@@ -5,7 +5,7 @@ def metric_card(title, icon, content, description, color, text_color="white"):
         f"""
         <div style="background-color: {color}; padding: 10px 20px; border-radius: 20px">
             <h6 style="margin: 0px; font-size:15px; color:{text_color}">{title}</h6>
-            <h2 style="margin: -30px 0px -15px; font-size:25px; color:{text_color}">
+            <h2 style="margin: -25px 0px -17px; font-size:25px; color:{text_color}">
                 <i class="{icon}" style="margin-right: 10px;"></i>{content}</h2>
             <p style="margin: 0px; font-size:13px; color:{text_color}">{description}</p>
         </div>
