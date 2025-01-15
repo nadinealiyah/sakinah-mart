@@ -5,8 +5,6 @@ import streamlit as st
 from helper.custom_metric_card import metric_card
 
 def items(df, start_date, end_date, info_data):
-    plt.style.use("default")
-
     st.header("EDA - Items")
     df['DATE'] = pd.to_datetime(df['DATE'])
 
@@ -18,7 +16,7 @@ def items(df, start_date, end_date, info_data):
         with st.expander("Filter"):
             dates = st.date_input(
                 label="Select the date",
-                value=(),
+                value=(start_date, end_date),
                 min_value=start_date,
                 max_value=end_date,
                 help=info_data
@@ -52,12 +50,12 @@ def items(df, start_date, end_date, info_data):
 
     # Menghitung total dan jenis barang
     total_qty = filtered_df["QTY"].sum()
-    unique_items = filtered_df["DESCRIPTION"].nunique()
+    unique_items = filtered_df["DESCRIPTION_CLEANED"].nunique()
 
     # Mengecek apakah data tersedia untuk rentang sebelumnya
     if not prev_filtered_df.empty:
         total_qty_prev = prev_filtered_df["QTY"].sum()
-        unique_items_prev = prev_filtered_df["DESCRIPTION"].nunique()
+        unique_items_prev = prev_filtered_df["DESCRIPTION_CLEANED"].nunique()
 
         # Menghitung kenaikan atau penurunan
         total_qty_diff = int(total_qty - total_qty_prev)
@@ -92,7 +90,7 @@ def items(df, start_date, end_date, info_data):
     st.write("")
 
     # Bar chart untuk Top 10 Barang
-    top_products = filtered_df.groupby('DESCRIPTION')['QTY'].sum().sort_values(ascending=False).head(10)
+    top_products = filtered_df.groupby('DESCRIPTION_CLEANED')['QTY'].sum().sort_values(ascending=False).head(10)
     plt.figure(figsize=(8, 3))
     ax = sns.barplot(x=top_products.values, y=top_products.index, color='#abce19')
     ax.spines['top'].set_visible(False) 

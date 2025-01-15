@@ -6,7 +6,7 @@ from helper.logo_img import get_logo_pens, get_logo_sakinah
 from option_menu.home.project_description import project_description
 from option_menu.eda.items import items
 from option_menu.eda.customers import customers
-# from mlxtend.frequent_patterns import apriori, association_rules
+from option_menu.pola_pembelian.apriori import filter, data_apriori, apriori_algorithm, apriori_visual, analyze_rules
 
 st.set_page_config(layout="wide")
 
@@ -51,66 +51,11 @@ elif selected_menu == "Customers":
     customers(df, start_date, end_date, info_data)
 elif selected_menu == "Items":
     items(df, start_date, end_date, info_data)
-# elif selected_menu == "Pola Pembelian":
-
-#     # Judul dan informasi aplikasi
-#     st.title("Pola Pembelian")
-#     st.subheader("Data contains transaction records for Apriori analysis")
-
-#     # Membaca data lokal
-#     DATA_PATH = "final_data.xlsx"  # Pastikan file ini ada di direktori yang sama dengan kode Streamlit
-#     groceries = pd.read_excel(DATA_PATH)
-
-#     # Pra-pemrosesan data
-#     groceries.rename(columns={'NO.TRANSAKSI': 'id', 'DESCRIPTION': 'item', 'DATE': 'DATE'}, inplace=True)
-#     groceries['DATE'] = pd.to_datetime(groceries['DATE'])
-#     groceries['year'] = groceries['DATE'].dt.year
-#     groceries['month'] = groceries['DATE'].dt.month
-#     groceries['day'] = groceries['DATE'].dt.day
-#     groceries['weekday'] = groceries['DATE'].dt.weekday
-
-#     # Mengatur ulang kolom
-#     groceries = groceries[['id', 'DATE', 'year', 'month', 'day', 'weekday', 'item']]
-
-#     # Membuat sparse matrix
-#     temp = groceries.copy()
-#     temp['qty_purchased'] = groceries['id'].map(groceries['id'].value_counts())
-#     basket = (temp.groupby(['id', 'item'])['qty_purchased']
-#             .sum().unstack().reset_index().fillna(0).set_index('id'))
-
-#     def encode(x):
-#         return 1 if x > 0 else 0
-
-#     basket_sets = basket.applymap(encode)
-
-#     # Sidebar untuk parameter model
-#     st.sidebar.title("Model Parameters")
-#     st.sidebar.write("Set thresholds for Apriori analysis")
-#     fixed_support = 0.001  # Support tetap
-#     min_confidence = st.sidebar.slider("Minimum Confidence", 0.0, 1.0, 0.5, 0.01)
-#     min_lift = st.sidebar.slider("Minimum Lift", 0.0, 10.0, 1.0, 0.1)
-
-#     # Menjalankan algoritma Apriori
-#     frequent_itemsets = apriori(basket_sets, min_support=fixed_support, use_colnames=True, low_memory=True)
-#     rules = association_rules(frequent_itemsets, num_itemsets=len(frequent_itemsets),  min_threshold=1)
-#     filtered_rules = rules[(rules['confidence'] >= min_confidence) & (rules['lift'] >= min_lift)]
-
-#     # Tampilkan rentang data
-#     st.write(f"Data contains from {groceries['DATE'].min().date()} to {groceries['DATE'].max().date()} "
-#             f"(Record count: {len(groceries)})")
-
-#     # Tampilkan hasil rule
-#     st.subheader("Hasil Rule")
-#     if not filtered_rules.empty:
-#         st.dataframe(filtered_rules[['antecedents', 'consequents', 'support', 'confidence', 'lift']])
-#     else:
-#         st.write("No rules meet the specified criteria.")
-
-#     # Analisis hasil
-#     st.subheader("Hasil Analisis")
-#     if not filtered_rules.empty:
-#         st.write(f"{len(filtered_rules)} rules identified with Support >= {fixed_support}, "
-#                 f"Confidence >= {min_confidence}, and Lift >= {min_lift}.")
-#     else:
-#         st.write("No significant patterns found with the current thresholds.")
-
+elif selected_menu == "Pola Pembelian":
+    start_date, end_date = filter(start_date, end_date, info_data)
+    basket_sets = data_apriori(df, start_date, end_date)
+    table_result = apriori_algorithm(basket_sets)
+    table_result = table_result[['antecedents','consequents','support','confidence','lift']]
+    st.dataframe(table_result, height=200)
+    visual_result = apriori_visual(table_result)
+    analyze_rules(table_result)

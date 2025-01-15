@@ -5,8 +5,6 @@ import streamlit as st
 from helper.custom_metric_card import metric_card
 
 def customers(df, start_date, end_date, info_data):
-    plt.style.use("default")
-
     st.header("EDA - Customers")
     df_unique = df.drop_duplicates(subset='NO.TRANSAKSI')
     df_unique['DATE'] = pd.to_datetime(df_unique['DATE'])
@@ -19,7 +17,7 @@ def customers(df, start_date, end_date, info_data):
         with st.expander("Filter"):
             dates = st.date_input(
                 label="Select the date",
-                value=(),
+                value=(start_date, end_date),
                 min_value=start_date,
                 max_value=end_date,
                 help=info_data
