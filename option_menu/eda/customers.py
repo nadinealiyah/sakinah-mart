@@ -15,18 +15,18 @@ def customers(df, start_date, end_date, info_data):
     cols = st.columns(3)
     with cols[0]:
         with st.expander("Filter"):
-            dates = st.date_input(
+            dates_customers = st.date_input(
                 label="Select the date",
                 value=(start_date, end_date),
                 min_value=start_date,
                 max_value=end_date,
                 help=info_data
             )
-            if len(dates) != 2:
+            if len(dates_customers) != 2:
                 st.warning("Please select start and end dates.")
                 st.stop()
 
-            start_date, end_date = dates
+            start_date, end_date = dates_customers
 
     # Hitung jumlah hari yang dipilih
     days_selected = (end_date - start_date).days + 1

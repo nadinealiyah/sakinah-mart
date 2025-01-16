@@ -11,19 +11,19 @@ def filter(start_date, end_date, info_data):
     cols = st.columns(3)
     with cols[0]:
         with st.expander("Filter"):
-            dates = st.date_input(
+            dates_apriori = st.date_input(
                 label="Select the date",
-                value=(start_date, end_date),
+                value=("2023-01-01", "2023-12-31"),
                 min_value=start_date,
                 max_value=end_date,
                 help=info_data,
                 disabled=True  # Menonaktifkan input
             )
-            if len(dates) != 2:
+            if len(dates_apriori) != 2:
                 st.warning("Please select start and end dates.")
                 st.stop()
 
-            start_date, end_date = dates
+            start_date, end_date = dates_apriori
 
     # Hitung jumlah hari yang dipilih
     days_selected = (end_date - start_date).days + 1
