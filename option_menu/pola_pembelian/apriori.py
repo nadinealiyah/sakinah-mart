@@ -47,7 +47,7 @@ def apriori_algorithm(basket_sets):
     frequent_itemsets = apriori(basket_sets, min_support=0.001, use_colnames=True, low_memory=True)
 
     # Association rules - using lift
-    rules = association_rules(frequent_itemsets, num_itemsets=len(frequent_itemsets),  min_threshold=1)
+    rules = association_rules(frequent_itemsets, num_itemsets=len(frequent_itemsets))
 
     # Customizable function to change the lift and confidence
     def rules_mod(lift, confidence):
@@ -70,8 +70,9 @@ def apriori_visual(rules):
 
         G1 = nx.DiGraph()
         color_map = []
-        N = 50  # Membatasi jumlah warna acak
-        colors = np.random.rand(N)  # Array warna acak
+        # N = 50  # Membatasi jumlah warna acak
+        # colors = np.random.rand(N)  # Array warna acak
+        colors = ['red', 'blue', 'green', 'purple', 'orange', 'cyan', 'pink', 'brown', 'gray', 'magenta']
         strs = ['R0', 'R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9', 'R10', 'R11']
 
         for i in range(rules_to_show):
