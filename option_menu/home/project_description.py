@@ -9,7 +9,7 @@ def project_description():
         st.markdown(
                         """
                         <a href="https://sakinahmart.com/" target="_blank">
-                            <button style="background-color:#009b4c; color:white; border:none; padding:10px 25px; text-align:center; text-decoration:none; font-size:14px; border-radius:20px; cursor:pointer;">
+                            <button style="background-color:#05AF58; color:white; border:none; padding:10px 25px; text-align:center; text-decoration:none; font-size:14px; border-radius:20px; cursor:pointer;">
                                 Sakinah Mart Website
                             </button>
                         </a>
