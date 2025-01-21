@@ -5,86 +5,55 @@ import networkx as nx
 import numpy as np
 from mlxtend.frequent_patterns import apriori, association_rules
 
-def filter(start_date, end_date, info_data):
+@st.cache_data
+def data_apriori(groceries, start_date, end_date):
     st.header("Pola Pembelian")
-    placeholder = st.empty()
-    cols = st.columns(3)
-    with cols[0]:
-        with st.expander("Filter"):
-            dates_apriori = st.date_input(
-                label="Select the date",
-                value=("2023-01-01", "2023-12-31"),
-                min_value=start_date,
-                max_value=end_date,
-                help=info_data,
-                disabled=True  # Menonaktifkan input
-            )
-            if len(dates_apriori) != 2:
-                st.warning("Please select start and end dates.")
-                st.stop()
-
-            start_date, end_date = dates_apriori
-
+    
     # Hitung jumlah hari yang dipilih
     days_selected = (end_date - start_date).days + 1
     day_text = "day" if days_selected == 1 else "days"
-    placeholder.caption(f"Based on data from {start_date} to {end_date} ({days_selected} {day_text}).")
-
-    return start_date, end_date
-
-@st.cache_data
-def data_apriori(groceries, start_date, end_date):
-    #Renaming the columns to simple words
-    groceries.rename(columns = {'NO.TRANSAKSI':'id','DESCRIPTION_CLEANED':'item'}, inplace = True)
+    st.caption(f"Based on data from {start_date} to {end_date} ({days_selected} {day_text}).")
     
-    # Filter data berdasarkan rentang tanggal yang dipilih
-    groceries['DATE'] = pd.to_datetime(groceries['DATE'])  # Pastikan kolom 'DATE' dalam format datetime
-    start_date = pd.to_datetime(start_date)  # Konversi start_date menjadi datetime
-    end_date = pd.to_datetime(end_date)  # Konversi end_date menjadi datetime
+    # Renaming the columns to simple words
+    groceries.rename(columns={'NO.TRANSAKSI': 'id', 'DESCRIPTION_CLEANED': 'item'}, inplace=True)
 
-    groceries_filtered = groceries[(groceries['DATE'] >= start_date) & (groceries['DATE'] <= end_date)]
+    # Creating temporary data which has quantity purchased column
+    temp = groceries.copy()
+    temp['qty_purchased'] = groceries['id'].map(groceries['id'].value_counts())
 
-    #Creating temporary data which has quantity purchased column
-    temp=groceries_filtered.copy()
-    temp['qty_purchased']=groceries['id'].map(groceries['id'].value_counts())
-
-    #Creating sparse matrix 
+    # Creating sparse matrix
     basket = (temp.groupby(['id', 'item'])['qty_purchased']
-            .sum().unstack().reset_index().fillna(0)
-            .set_index('id'))
+              .sum().unstack().reset_index().fillna(0)
+              .set_index('id'))
 
-    #Eoding the quantity urchased
+    # Encoding the quantity purchased
     def encode(x):
         '''Encoding the quantity of products with 0s and 1s
-        0:when qty is less than or equal to 0
-        1:when qty is greater than or equal to 1'''
-        if x <= 0:
-            return 0
-        if x >= 1:
-            return 1
-        
-    #Appying on our data
+        0: when qty is less than or equal to 0
+        1: when qty is greater than or equal to 1'''
+        return 1 if x >= 1 else 0
+
+    # Applying on our data
     basket_sets = basket.applymap(encode)
     return basket_sets
 
 @st.cache_data
 def apriori_algorithm(basket_sets):
     st.markdown(
-    "<div style='font-weight: bold; font-size: 18px;'>Hasil Rules Items</div>",
-    unsafe_allow_html=True
+        "<div style='font-weight: bold; font-size: 18px;'>Hasil Rules Items</div>",
+        unsafe_allow_html=True
     )
-    #Apriori
+    # Apriori
     frequent_itemsets = apriori(basket_sets, min_support=0.001, use_colnames=True, low_memory=True)
 
-    #Associaton rules-using lift
+    # Association rules - using lift
     rules = association_rules(frequent_itemsets, num_itemsets=len(frequent_itemsets),  min_threshold=1)
 
-    #Customizable function to change the lift and confidence
-    def rules_mod(lift,confidence):
+    # Customizable function to change the lift and confidence
+    def rules_mod(lift, confidence):
         '''rules_mod is a function to control the rules 
         based on lift and confidence threshold'''
-        return rules[ (rules['lift'] >= lift) &
-        (rules['confidence'] >= confidence) ]
+        return rules[(rules['lift'] >= lift) & (rules['confidence'] >= confidence)]
 
     return rules_mod(1, 0.5)
 
@@ -104,12 +73,12 @@ def apriori_visual(rules):
         N = 50  # Membatasi jumlah warna acak
         colors = np.random.rand(N)  # Array warna acak
         strs = ['R0', 'R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9', 'R10', 'R11']
-        
+
         for i in range(rules_to_show):
             # Menambahkan node untuk setiap rule
             rule_node = "R" + str(i)
             G1.add_node(rule_node)
-            
+
             # Menambahkan edges untuk antecedents (premis) -> rule
             for a in rules.iloc[i]['antecedents']:
                 G1.add_node(a)  # Menambahkan node antecedent
@@ -119,31 +88,31 @@ def apriori_visual(rules):
             for c in rules.iloc[i]['consequents']:
                 G1.add_node(c)  # Menambahkan node consequent
                 G1.add_edge(rule_node, c, color=colors[i], weight=2)  # Menghubungkan rule ke consequent
-        
+
         # Menentukan warna node
         for node in G1:
             if node in strs:  # Jika node adalah rule node (misalnya R0, R1, ...)
                 color_map.append('lime')
             else:  # Jika node adalah antecedent atau consequent
                 color_map.append('yellow')
-        
+
         # Menentukan warna dan bobot edge
         edges = G1.edges()
         edge_colors = [G1[u][v]['color'] for u, v in edges]
         edge_weights = [G1[u][v]['weight'] for u, v in edges]
-        
+
         # Menata posisi node menggunakan spring_layout
         pos = nx.spring_layout(G1, k=16, seed=42)
-        
-        plt.figure(figsize=(15,8))
-        plt.gca().set_facecolor("#F0F2F6") 
+
+        plt.figure(figsize=(15, 8))
+        plt.gca().set_facecolor("#F0F2F6")
 
         # Menggambar graph
         nx.draw(
-            G1, pos, node_color=color_map, edge_color=edge_colors, 
+            G1, pos, node_color=color_map, edge_color=edge_colors,
             width=edge_weights, font_size=12, with_labels=False
         )
-        
+
         # Menambahkan label node (rule, antecedent, consequent)
         for p in pos:
             pos[p][1] += 0  # Mengangkat posisi label agar tidak menutupi node
@@ -152,8 +121,8 @@ def apriori_visual(rules):
 
 def analyze_rules(rules):
     st.markdown(
-    "<div style='font-weight: bold; font-size: 18px;'>Analisis</div>",
-    unsafe_allow_html=True
+        "<div style='font-weight: bold; font-size: 18px;'>Analisis</div>",
+        unsafe_allow_html=True
     )
     # Jumlah total rules
     total_rules = len(rules)
@@ -193,4 +162,3 @@ def analyze_rules(rules):
         f"{rule_analysis}\n\n"
         f"**Kesimpulan:** {kesimpulan}"
     )
-

@@ -6,7 +6,7 @@ from helper.logo_img import get_logo_pens, get_logo_sakinah
 from option_menu.home.project_description import project_description
 from option_menu.eda.items import items
 from option_menu.eda.customers import customers
-from option_menu.pola_pembelian.apriori import filter, data_apriori, apriori_algorithm, apriori_visual, analyze_rules
+from option_menu.pola_pembelian.apriori import data_apriori, apriori_algorithm, apriori_visual, analyze_rules
 
 st.set_page_config(layout="wide")
 
@@ -52,7 +52,6 @@ elif selected_menu == "Customers":
 elif selected_menu == "Items":
     items(df, start_date, end_date, info_data)
 elif selected_menu == "Pola Pembelian":
-    start_date, end_date = filter(start_date, end_date, info_data)
     basket_sets = data_apriori(df, start_date, end_date)
     table_result = apriori_algorithm(basket_sets)
     table_result = table_result[['antecedents','consequents','support','confidence','lift']]
