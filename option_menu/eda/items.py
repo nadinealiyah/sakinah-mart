@@ -76,7 +76,7 @@ def items(df, start_date, end_date, info_data):
             title="Total Barang yang Dibeli:",
             content=f"{int(total_qty)}",
             description=description_qty_text,
-            color='#009b4c',
+            color='#05AF58',
             icon="bi bi-inboxes"
         )
     with cols[1]:
@@ -84,7 +84,7 @@ def items(df, start_date, end_date, info_data):
             title="Jenis Barang yang Dibeli:",
             content=f"{int(unique_items)}",
             description=description_items_text,
-            color='#009b4c',
+            color='#05AF58',
             icon="bi bi-inbox"
         )
     st.write("")

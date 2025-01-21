@@ -69,7 +69,7 @@ def customers(df, start_date, end_date, info_data):
             icon="bi bi-people-fill",
             content=f"{total_customers}",
             description=description,
-            color='#009b4c'
+            color='#05AF58'
         )
     st.write("")
 
@@ -124,7 +124,7 @@ def customers(df, start_date, end_date, info_data):
                 labels=weekend_weekday_counts.index,
                 autopct=lambda pct: func(pct, weekend_weekday_counts),
                 startangle=180,
-                colors=['#abce19', '#009b4c'],
+                colors=['#abce19', '#05AF58'],
                 textprops={'fontsize': 10}
             )
             
