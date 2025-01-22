@@ -35,12 +35,12 @@ with st.sidebar:
     st.markdown("<div style='text-align: center; font-size: smaller; color: #004e26'>Created By: Nadine Aliyah Mustafa</div>", unsafe_allow_html=True)
     st.markdown("<div style='text-align: center; font-size: smaller; color: #004e26'>Supported By: </div>", unsafe_allow_html=True)
     st.caption(" ")
-    cols = st.columns(6)
-    with cols[2]:
+    cols = st.columns(4)
+    with cols[1]:
         logo_path = get_logo_pens()
         logo_image = Image.open(logo_path)
         st.image(logo_image, width=50)
-    with cols[3]:
+    with cols[2]:
         logo_path = get_logo_sakinah()
         logo_image = Image.open(logo_path)
         st.image(logo_image, width=300)
@@ -56,5 +56,5 @@ elif selected_menu == "Pola Pembelian":
     table_result = apriori_algorithm(basket_sets)
     table_result = table_result[['antecedents','consequents','support','confidence','lift']]
     st.dataframe(table_result, height=200)
-    visual_result = apriori_visual(table_result)
+    apriori_visual(table_result)
     analyze_rules(table_result)

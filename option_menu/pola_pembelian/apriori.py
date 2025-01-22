@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import networkx as nx
 import numpy as np
 from mlxtend.frequent_patterns import apriori, association_rules
@@ -53,33 +54,35 @@ def apriori_algorithm(basket_sets):
     def rules_mod(lift, confidence):
         '''rules_mod is a function to control the rules 
         based on lift and confidence threshold'''
-        return rules[(rules['lift'] >= lift) & (rules['confidence'] >= confidence)]
+        filtered_rules = rules[(rules['lift'] >= lift) & (rules['confidence'] >= confidence)]
+        return filtered_rules.reset_index(drop=True)  # Reset index to start from 0
 
-    return rules_mod(1, 0.5)
+    return rules_mod(1, 1)
 
 def apriori_visual(rules):
     with st.expander("Visualisasi"):
-        # Slider untuk memilih jumlah aturan yang akan ditampilkan
         rules_to_show = st.slider(
-            "Pilih jumlah rules untuk divisualisasikan:",
+            'Jumlah rules untuk divisualisasikan',
             min_value=1,
             max_value=len(rules),
-            value=3,  # Nilai default
-            step=1
+            value=3,
+            step=1,
         )
-
         G1 = nx.DiGraph()
         color_map = []
-        # N = 50  # Membatasi jumlah warna acak
-        # colors = np.random.rand(N)  # Array warna acak
-        colors = ['red', 'blue', 'green', 'purple', 'orange', 'cyan', 'pink', 'brown', 'gray', 'magenta']
+        
+        # Tetapkan seed agar warna konsisten
+        np.random.seed(42)
+        N = 50  # Membatasi jumlah warna
+        colors = np.random.rand(N)  # Array warna acak tetap dengan seed
+        
         strs = ['R0', 'R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9', 'R10', 'R11']
-
+        
         for i in range(rules_to_show):
             # Menambahkan node untuk setiap rule
             rule_node = "R" + str(i)
             G1.add_node(rule_node)
-
+            
             # Menambahkan edges untuk antecedents (premis) -> rule
             for a in rules.iloc[i]['antecedents']:
                 G1.add_node(a)  # Menambahkan node antecedent
@@ -89,35 +92,36 @@ def apriori_visual(rules):
             for c in rules.iloc[i]['consequents']:
                 G1.add_node(c)  # Menambahkan node consequent
                 G1.add_edge(rule_node, c, color=colors[i], weight=2)  # Menghubungkan rule ke consequent
-
+        
         # Menentukan warna node
         for node in G1:
             if node in strs:  # Jika node adalah rule node (misalnya R0, R1, ...)
                 color_map.append('lime')
             else:  # Jika node adalah antecedent atau consequent
-                color_map.append('yellow')
-
+                color_map.append('cyan')
+        
         # Menentukan warna dan bobot edge
         edges = G1.edges()
         edge_colors = [G1[u][v]['color'] for u, v in edges]
         edge_weights = [G1[u][v]['weight'] for u, v in edges]
-
+        
         # Menata posisi node menggunakan spring_layout
         pos = nx.spring_layout(G1, k=16, seed=42)
-
+        
         plt.figure(figsize=(15, 8))
-        plt.gca().set_facecolor("#F0F2F6")
+        plt.gca().set_facecolor("#F0F2F6") 
 
         # Menggambar graph
         nx.draw(
-            G1, pos, node_color=color_map, edge_color=edge_colors,
-            width=edge_weights, font_size=12, with_labels=False
+            G1, pos, node_color=color_map, edge_color=edge_colors, 
+            width=edge_weights, font_size=16, with_labels=False
         )
-
+        
         # Menambahkan label node (rule, antecedent, consequent)
         for p in pos:
             pos[p][1] += 0  # Mengangkat posisi label agar tidak menutupi node
         nx.draw_networkx_labels(G1, pos)
+        
         st.pyplot(plt.gcf())
 
 def analyze_rules(rules):
