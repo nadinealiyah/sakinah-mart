@@ -59,6 +59,9 @@ def apriori_algorithm(basket_sets):
 
     return rules_mod(1, 1)
 
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
+
 def apriori_visual(rules):
     with st.expander("Visualisasi"):
         rules_to_show = st.slider(
@@ -78,24 +81,40 @@ def apriori_visual(rules):
         
         strs = ['R0', 'R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9', 'R10', 'R11']
         
+        # Normalize lift values to range [0, 1]
+        lift_values = rules['lift'].values
+        lift_min = lift_values.min()
+        lift_max = lift_values.max()
+        
+        # Using a colormap for lift values (you can adjust the colormap as needed)
+        cmap = cm.get_cmap('YlOrRd')  # Yellow to Red colormap
+        
         for i in range(rules_to_show):
             # Menambahkan node untuk setiap rule
             rule_node = "R" + str(i)
             G1.add_node(rule_node)
             
+            # Normalized lift for alpha transparency
+            lift = rules.iloc[i]['lift']
+            # Normalize lift to range [0, 1] for the colormap
+            lift_normalized = (lift - lift_min) / (lift_max - lift_min)
+            
+            # Get the color from the colormap
+            edge_color = cmap(lift_normalized)  # colormap returns RGBA values
+            
             # Menambahkan edges untuk antecedents (premis) -> rule
             for a in rules.iloc[i]['antecedents']:
                 G1.add_node(a)  # Menambahkan node antecedent
-                G1.add_edge(a, rule_node, color=colors[i], weight=2)  # Menghubungkan antecedent ke rule
+                G1.add_edge(a, rule_node, color=edge_color, weight=2)  # Menghubungkan antecedent ke rule
 
             # Menambahkan edges untuk rule -> consequents (konsekuen)
             for c in rules.iloc[i]['consequents']:
                 G1.add_node(c)  # Menambahkan node consequent
-                G1.add_edge(rule_node, c, color=colors[i], weight=2)  # Menghubungkan rule ke consequent
+                G1.add_edge(rule_node, c, color=edge_color, weight=2)  # Menghubungkan rule ke consequent
         
         # Menentukan warna node
         for node in G1:
-            if node in strs:  # Jika node adalah rule node (misalnya R0, R1, ...)
+            if node in strs:  # Jika node adalah rule node (misalnya R0, R1, ...):
                 color_map.append('lime')
             else:  # Jika node adalah antecedent atau consequent
                 color_map.append('cyan')
