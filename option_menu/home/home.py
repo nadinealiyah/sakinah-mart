@@ -5,7 +5,7 @@ def project_description():
     with cols[0]:
         st.header("HOME")
         st.markdown("**Selamat datang di Sakinah Mart Analytics!**")
-        st.markdown("Proyek ini menghadirkan visualisasi dan analisis mendalam dari data penjualan Sakinah Mart sepanjang tahun 2023.")
+        st.markdown("Proyek ini menghadirkan visualisasi dan analisis mendalam dari data penjualan Sakinah Mart.")
         st.markdown(
                         """
                         <a href="https://sakinahmart.com/" target="_blank">

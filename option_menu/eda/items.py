@@ -3,10 +3,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 from helper.custom_metric_card import metric_card
+import streamlit_toggle as tog
 
 def items(df, start_date, end_date, info_data):
     st.header("EDA - Items")
-    df['DATE'] = pd.to_datetime(df['DATE'])
+    df['TANGGAL'] = pd.to_datetime(df['TANGGAL'])
 
     placeholder = st.empty()
 
@@ -40,22 +41,22 @@ def items(df, start_date, end_date, info_data):
     prev_end_date = end_date - pd.Timedelta(days=days_selected)
 
     # Memastikan rentang waktu sebelumnya masih dalam range dataset
-    if prev_start_date < df['DATE'].min() or prev_end_date < df['DATE'].min():
+    if prev_start_date < df['TANGGAL'].min() or prev_end_date < df['TANGGAL'].min():
         prev_filtered_df = pd.DataFrame()  # Rentang sebelumnya di luar data
     else:
-        prev_filtered_df = df[(df['DATE'] >= prev_start_date) & (df['DATE'] <= prev_end_date)]
+        prev_filtered_df = df[(df['TANGGAL'] >= prev_start_date) & (df['TANGGAL'] <= prev_end_date)]
 
     # Filter data untuk rentang waktu yang dipilih
-    filtered_df = df[(df['DATE'] >= start_date) & (df['DATE'] <= end_date)]
+    filtered_df = df[(df['TANGGAL'] >= start_date) & (df['TANGGAL'] <= end_date)]
 
     # Menghitung total dan jenis barang
     total_qty = filtered_df["QTY"].sum()
-    unique_items = filtered_df["DESCRIPTION_CLEANED"].nunique()
+    unique_items = filtered_df["NAMA BARANG"].nunique()
 
     # Mengecek apakah data tersedia untuk rentang sebelumnya
     if not prev_filtered_df.empty:
         total_qty_prev = prev_filtered_df["QTY"].sum()
-        unique_items_prev = prev_filtered_df["DESCRIPTION_CLEANED"].nunique()
+        unique_items_prev = prev_filtered_df["NAMA BARANG"].nunique()
 
         # Menghitung kenaikan atau penurunan
         total_qty_diff = int(total_qty - total_qty_prev)
@@ -88,25 +89,57 @@ def items(df, start_date, end_date, info_data):
             icon="bi bi-inbox"
         )
     st.write("")
+    
+    # Toggle switch untuk menampilkan Produk Tidak Laku (default: Produk Terlaris)
+    platform_toggle = st.session_state.get("product_toggle", False)
 
-    # Bar chart untuk Top 10 Barang
-    top_products = filtered_df.groupby('DESCRIPTION_CLEANED')['QTY'].sum().sort_values(ascending=False).head(10)
+    product_toggle = tog.st_toggle_switch(
+        label="Bottom" if platform_toggle else "Top",
+        key="product_toggle",
+        default_value=False,
+        label_after=False,
+        inactive_color='#D3D3D3',
+        active_color="#11567f",
+        track_color="#29B5E8"
+    )
+
+    # Menentukan produk berdasarkan toggle
+    if product_toggle:
+        selected_products = (
+            filtered_df.groupby("NAMA BARANG")["QTY"].sum().sort_values(ascending=False).tail(10)
+        )
+        title = "10 Produk yang Tidak Laku Dibeli"
+    else:
+        selected_products = (
+            filtered_df.groupby("NAMA BARANG")["QTY"].sum().sort_values(ascending=False).head(10)
+        )
+        title = "10 Produk yang Laku Dibeli"
+
+    # Membuat bar chart
     plt.figure(figsize=(8, 3))
-    ax = sns.barplot(x=top_products.values, y=top_products.index, color='#abce19')
-    ax.spines['top'].set_visible(False) 
-    ax.spines['right'].set_visible(False)
-    ax.spines['left'].set_visible(False)
-    ax.spines['bottom'].set_visible(False)
-    for i, v in enumerate(top_products.values):
-        ax.text(int(v), i, f'{int(v)}', color='black', va='center', fontsize=7)
+    ax = sns.barplot(x=selected_products.values, y=selected_products.index, color="#abce19")
 
-    plt.gca().set_facecolor("#F0F2F6")  # Warna latar belakang area grafik
-    plt.gcf().patch.set_facecolor("#F0F2F6") 
+    # Menghilangkan garis tepi
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(False)
+    ax.spines["bottom"].set_visible(False)
+
+    # Menampilkan angka jika nilainya lebih dari 0
+    for i, v in enumerate(selected_products.values):
+        if v > 0:
+            ax.text(int(v), i, f"{int(v)}", color="black", va="center", fontsize=7)
+
+    # Mengatur tampilan
+    plt.gca().set_facecolor("#F0F2F6")
+    plt.gcf().patch.set_facecolor("#F0F2F6")
     plt.yticks(fontsize=8)
     plt.xticks([])
-    plt.xlabel('')
-    plt.ylabel('')
-    plt.title("Top 10 Produk yang Laku Dibeli", fontsize=10)
+    plt.xlabel("")
+    plt.ylabel("")
+    plt.title(title, fontsize=10)
+
+    # Menampilkan grafik di Streamlit
     st.pyplot(plt.gcf())
 
     

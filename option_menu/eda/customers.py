@@ -6,8 +6,8 @@ from helper.custom_metric_card import metric_card
 
 def customers(df, start_date, end_date, info_data):
     st.header("EDA - Customers")
-    df_unique = df.drop_duplicates(subset='NO.TRANSAKSI')
-    df_unique['DATE'] = pd.to_datetime(df_unique['DATE'])
+    df_unique = df.drop_duplicates(subset='NO TRANSAKSI')
+    df_unique['TANGGAL'] = pd.to_datetime(df_unique['TANGGAL'])
 
     placeholder = st.empty()
 
@@ -41,19 +41,19 @@ def customers(df, start_date, end_date, info_data):
     prev_end_date = end_date - pd.Timedelta(days=days_selected)
 
     # Memastikan rentang waktu sebelumnya masih dalam range dataset
-    if prev_start_date < df_unique['DATE'].min() or prev_end_date < df_unique['DATE'].min():
+    if prev_start_date < df_unique['TANGGAL'].min() or prev_end_date < df_unique['TANGGAL'].min():
         prev_filtered_df = pd.DataFrame()  # Rentang sebelumnya di luar data
     else:
         # Filter data untuk rentang waktu sebelumnya
-        prev_filtered_df = df_unique[(df_unique['DATE'] >= prev_start_date) & (df_unique['DATE'] <= prev_end_date)]
+        prev_filtered_df = df_unique[(df_unique['TANGGAL'] >= prev_start_date) & (df_unique['TANGGAL'] <= prev_end_date)]
 
     # Filter data untuk rentang waktu yang dipilih
-    filtered_df = df_unique[(df_unique['DATE'] >= start_date) & (df_unique['DATE'] <= end_date)]
-    total_customers = filtered_df['NO.TRANSAKSI'].nunique()
+    filtered_df = df_unique[(df_unique['TANGGAL'] >= start_date) & (df_unique['TANGGAL'] <= end_date)]
+    total_customers = filtered_df['NO TRANSAKSI'].nunique()
 
     # Mengecek apakah data tersedia untuk rentang sebelumnya
     if not prev_filtered_df.empty:
-        total_customers_prev = prev_filtered_df['NO.TRANSAKSI'].nunique()
+        total_customers_prev = prev_filtered_df['NO TRANSAKSI'].nunique()
         total_customers_diff = total_customers - total_customers_prev
         description_customers = f"+{total_customers_diff}" if total_customers_diff > 0 else f"{total_customers_diff}"
         description = f"{description_customers} from the previous {days_selected} {day_text}."
@@ -74,8 +74,8 @@ def customers(df, start_date, end_date, info_data):
     st.write("")
 
     # Aktivitas pelanggan per hari
-    filtered_df['DAY_OF_WEEK'] = filtered_df['DATE'].dt.day_name()
-    transaction_per_day = filtered_df.groupby('DAY_OF_WEEK')['NO.TRANSAKSI'].count()
+    filtered_df['DAY_OF_WEEK'] = filtered_df['TANGGAL'].dt.day_name()
+    transaction_per_day = filtered_df.groupby('DAY_OF_WEEK')['NO TRANSAKSI'].count()
     ordered_days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     transaction_per_day = transaction_per_day.reindex(ordered_days, fill_value=0)
 
@@ -107,7 +107,7 @@ def customers(df, start_date, end_date, info_data):
             "<div style='text-align: center; font-weight: bold; font-size: 18px;'>Aktivitas Pelanggan: Weekend vs Weekday</div>",
             unsafe_allow_html=True
         )
-        filtered_df['WEEKDAY'] = filtered_df['DATE'].dt.weekday
+        filtered_df['WEEKDAY'] = filtered_df['TANGGAL'].dt.weekday
         filtered_df['IS_WEEKEND'] = np.where(filtered_df['WEEKDAY'] >= 5, 'Weekend', 'Weekday')
         weekend_weekday_counts = filtered_df['IS_WEEKEND'].value_counts()
 

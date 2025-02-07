@@ -1,7 +1,6 @@
 import streamlit as st
-import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
+import matplotlib.cm as cm
 import networkx as nx
 import numpy as np
 from mlxtend.frequent_patterns import apriori, association_rules
@@ -14,18 +13,15 @@ def data_apriori(groceries, start_date, end_date):
     days_selected = (end_date - start_date).days + 1
     day_text = "day" if days_selected == 1 else "days"
     st.caption(f"Based on data from {start_date} to {end_date} ({days_selected} {day_text}).")
-    
-    # Renaming the columns to simple words
-    groceries.rename(columns={'NO.TRANSAKSI': 'id', 'DESCRIPTION_CLEANED': 'item'}, inplace=True)
 
     # Creating temporary data which has quantity purchased column
     temp = groceries.copy()
-    temp['qty_purchased'] = groceries['id'].map(groceries['id'].value_counts())
+    temp['qty_purchased'] = groceries['NO TRANSAKSI'].map(groceries['NO TRANSAKSI'].value_counts())
 
     # Creating sparse matrix
-    basket = (temp.groupby(['id', 'item'])['qty_purchased']
+    basket = (temp.groupby(['NO TRANSAKSI', 'NAMA BARANG'])['qty_purchased']
               .sum().unstack().reset_index().fillna(0)
-              .set_index('id'))
+              .set_index('NO TRANSAKSI'))
 
     # Encoding the quantity purchased
     def encode(x):
@@ -45,7 +41,7 @@ def apriori_algorithm(basket_sets):
         unsafe_allow_html=True
     )
     # Apriori
-    frequent_itemsets = apriori(basket_sets, min_support=0.001, use_colnames=True, low_memory=True)
+    frequent_itemsets = apriori(basket_sets, min_support=0.0001, use_colnames=True, low_memory=True)
 
     # Association rules - using lift
     rules = association_rules(frequent_itemsets, num_itemsets=len(frequent_itemsets))
@@ -59,130 +55,54 @@ def apriori_algorithm(basket_sets):
 
     return rules_mod(1, 1)
 
-import matplotlib.cm as cm
-import matplotlib.colors as mcolors
-
 def apriori_visual(rules):
     with st.expander("Visualisasi"):
         rules_to_show = st.slider(
             'Jumlah rules untuk divisualisasikan',
             min_value=1,
             max_value=len(rules),
-            value=3,
+            value=5,
             step=1,
         )
-        G1 = nx.DiGraph()
-        color_map = []
-        
-        # Tetapkan seed agar warna konsisten
-        np.random.seed(42)
-        N = 50  # Membatasi jumlah warna
-        colors = np.random.rand(N)  # Array warna acak tetap dengan seed
-        
-        strs = ['R0', 'R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9', 'R10', 'R11']
-        
-        # Normalize lift values to range [0, 1]
-        lift_values = rules['lift'].values
-        lift_min = lift_values.min()
-        lift_max = lift_values.max()
-        
-        # Using a colormap for lift values (you can adjust the colormap as needed)
-        cmap = cm.get_cmap('YlOrRd')  # Yellow to Red colormap
-        
-        for i in range(rules_to_show):
-            # Menambahkan node untuk setiap rule
-            rule_node = "R" + str(i)
-            G1.add_node(rule_node)
-            
-            # Normalized lift for alpha transparency
-            lift = rules.iloc[i]['lift']
-            # Normalize lift to range [0, 1] for the colormap
-            lift_normalized = (lift - lift_min) / (lift_max - lift_min)
-            
-            # Get the color from the colormap
-            edge_color = cmap(lift_normalized)  # colormap returns RGBA values
-            
-            # Menambahkan edges untuk antecedents (premis) -> rule
-            for a in rules.iloc[i]['antecedents']:
-                G1.add_node(a)  # Menambahkan node antecedent
-                G1.add_edge(a, rule_node, color=edge_color, weight=2)  # Menghubungkan antecedent ke rule
 
-            # Menambahkan edges untuk rule -> consequents (konsekuen)
-            for c in rules.iloc[i]['consequents']:
-                G1.add_node(c)  # Menambahkan node consequent
-                G1.add_edge(rule_node, c, color=edge_color, weight=2)  # Menghubungkan rule ke consequent
-        
-        # Menentukan warna node
-        for node in G1:
-            if node in strs:  # Jika node adalah rule node (misalnya R0, R1, ...):
-                color_map.append('lime')
-            else:  # Jika node adalah antecedent atau consequent
-                color_map.append('cyan')
-        
-        # Menentukan warna dan bobot edge
-        edges = G1.edges()
-        edge_colors = [G1[u][v]['color'] for u, v in edges]
-        edge_weights = [G1[u][v]['weight'] for u, v in edges]
-        
-        # Menata posisi node menggunakan spring_layout
-        pos = nx.spring_layout(G1, k=16, seed=42)
-        
-        plt.figure(figsize=(15, 8))
-        plt.gca().set_facecolor("#F0F2F6") 
+        # Mengurutkan rules berdasarkan lift dari yang terbesar ke terkecil
+        sorted_rules = rules.sort_values(by="lift", ascending=False).head(rules_to_show)
 
-        # Menggambar graph
-        nx.draw(
-            G1, pos, node_color=color_map, edge_color=edge_colors, 
-            width=edge_weights, font_size=16, with_labels=False
-        )
+        # Menggabungkan antecedents dan consequents sebagai label
+        labels = [
+            f"{', '.join(antecedents)} → {', '.join(consequents)}"
+            for antecedents, consequents in zip(sorted_rules['antecedents'], sorted_rules['consequents'])
+        ]
         
-        # Menambahkan label node (rule, antecedent, consequent)
-        for p in pos:
-            pos[p][1] += 0  # Mengangkat posisi label agar tidak menutupi node
-        nx.draw_networkx_labels(G1, pos)
-        
-        st.pyplot(plt.gcf())
+        lift_values = sorted_rules['lift'].values
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+        y_pos = np.arange(len(labels))
+
+
+        ax.barh(y_pos, lift_values, color='#abce19')
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(labels)
+        ax.set_xlabel("Lift Value")
+        ax.set_title("Bar Chart of Apriori Rules")
+
+        plt.gca().set_facecolor("#F0F2F6")  # Warna latar belakang area grafik
+        plt.gcf().patch.set_facecolor("#F0F2F6") 
+        plt.gca().invert_yaxis()  # Membalik sumbu y agar aturan dengan lift tertinggi ada di atas
+        st.pyplot(fig)
 
 def analyze_rules(rules):
-    st.markdown(
-        "<div style='font-weight: bold; font-size: 18px;'>Analisis</div>",
-        unsafe_allow_html=True
-    )
-    # Jumlah total rules
-    total_rules = len(rules)
-
-    # Rata-rata metrik penting
-    avg_support = rules['support'].mean()
-    avg_confidence = rules['confidence'].mean()
-    avg_lift = rules['lift'].mean()
-
-    # Rule dengan Lift tertinggi
     best_rule = rules.iloc[rules['lift'].idxmax()]
-    rule_analysis = (
-        f"Jika membeli **{', '.join(best_rule['antecedents'])}**, "
-        f"kemungkinan besar juga akan membeli **{', '.join(best_rule['consequents'])}**.\n"
-        f"- Lift: {best_rule['lift']:.2f}\n"
-        f"- Confidence: {best_rule['confidence']:.2%}\n"
-        f"- Support: {best_rule['support']:.4f}\n"
+    best_rule_text = (
+        f"Jika pelanggan membeli **{', '.join(best_rule['antecedents'])}**, mereka cenderung juga membeli "
+        f"**{', '.join(best_rule['consequents'])}**)."
     )
 
-    # Kesimpulan
     kesimpulan = (
-        f"Dari analisis yang dilakukan, ditemukan {total_rules} rules dengan rata-rata dukungan (support) sebesar "
-        f"{avg_support:.4f}, kepercayaan (confidence) sebesar {avg_confidence:.2%}, dan pengaruh (lift) rata-rata sebesar "
-        f"{avg_lift:.2f}. Sebagian besar rules menunjukkan hubungan {'positif (Lift > 1)' if avg_lift > 1 else 'negatif atau lemah (Lift <= 1)'}. "
-        f"Kepercayaan rata-rata {'cukup tinggi sehingga aturan-aturan dapat diandalkan' if avg_confidence > 0.5 else 'rendah sehingga aturan-aturan mungkin kurang relevan'}. "
-        f"Analisis ini dapat membantu menentukan strategi pemasaran seperti menyusun bundling produk atau pengaturan rak toko dengan memprioritaskan rules yang memiliki Lift dan Confidence tinggi."
+        f"Aturan ini dapat digunakan untuk strategi product bundling dengan menggabungkan barang-barang tersebut dalam "
+        f"promosi atau paket penjualan. Selain itu, produk ini bisa ditempatkan berdekatan di toko untuk meningkatkan peluang "
+        f"pembelian impulsif dan memaksimalkan penjualan."
     )
 
-    # Gabungkan semua analisis ke dalam elemen st.success
-    st.success(
-        f"**Jumlah total rules yang ditemukan:** {total_rules}\n\n"
-        f"**Rata-rata Metrik Penting**\n"
-        f"- Support (Dukungan rata-rata): {avg_support:.4f}\n"
-        f"- Confidence (Kepercayaan rata-rata): {avg_confidence:.2%}\n"
-        f"- Lift (Pengaruh rata-rata): {avg_lift:.2f}\n\n"
-        f"**Rule dengan pengaruh tertinggi (Lift)**\n\n"
-        f"{rule_analysis}\n\n"
-        f"**Kesimpulan:** {kesimpulan}"
-    )
+    st.success(f"**Kesimpulan:** {best_rule_text}\n\n**Rekomendasi:** {kesimpulan}")
+
