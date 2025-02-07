@@ -76,14 +76,6 @@ elif selected_menu == "Upload Data":
             # **Simpan df_final ke session_state agar digunakan di menu lain**
             st.session_state.df = df_final.copy()
             update_info_data()  # **Perbarui info data setelah upload**
-            
-            cols = st.columns(2)
-            with cols[0]:
-                st.write("Data sebelum preprocessing:")
-                st.dataframe(df_before)  # **Menampilkan data asli**
-            with cols[1]:
-                st.write("Data setelah preprocessing:")
-                st.dataframe(df_final)  # **Menampilkan data yang telah diproses**
 
 elif selected_menu == "Customers":
     if st.session_state.df is not None:

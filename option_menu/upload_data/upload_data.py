@@ -12,6 +12,7 @@ def upload_data():
     if uploaded_file is not None:
         try:
             df = pd.read_excel(uploaded_file)
+            st.success("File berhasil diupload")
             return df  
         except Exception as e:
             st.error(f"Terjadi kesalahan saat membaca file: {e}")

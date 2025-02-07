@@ -99,8 +99,8 @@ def items(df, start_date, end_date, info_data):
         default_value=False,
         label_after=False,
         inactive_color='#D3D3D3',
-        active_color="#11567f",
-        track_color="#29B5E8"
+        active_color="#009452",
+        track_color="#05AF58"
     )
 
     # Menentukan produk berdasarkan toggle
