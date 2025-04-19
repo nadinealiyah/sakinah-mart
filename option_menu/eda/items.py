@@ -89,12 +89,12 @@ def items(df, start_date, end_date, info_data):
             icon="bi bi-inbox"
         )
     st.write("")
-    
+
     # Toggle switch untuk menampilkan Produk Tidak Laku (default: Produk Terlaris)
     platform_toggle = st.session_state.get("product_toggle", False)
 
     product_toggle = tog.st_toggle_switch(
-        label="Bottom" if platform_toggle else "Top",
+        label="Least" if platform_toggle else "Top",
         key="product_toggle",
         default_value=False,
         label_after=False,
@@ -105,41 +105,58 @@ def items(df, start_date, end_date, info_data):
 
     # Menentukan produk berdasarkan toggle
     if product_toggle:
-        selected_products = (
-            filtered_df.groupby("NAMA BARANG")["QTY"].sum().sort_values(ascending=False).tail(10)
+        # Produk tidak laku: hanya yang QTY == 1
+        filtered_products = filtered_df.groupby("NAMA BARANG")["QTY"].sum()
+        least_products = filtered_products[filtered_products == 1].sort_values()
+
+        st.markdown(
+            "<div style='text-align: center; font-weight: bold; font-size: 18px;'>Produk yang Tidak Laku Dibeli</div>",
+            unsafe_allow_html=True
         )
-        title = "10 Produk yang Tidak Laku Dibeli"
+        styled_df = (
+            least_products
+            .reset_index()
+            .rename(columns={"QTY": "Jumlah Dibeli"})
+            .style.set_properties(**{'text-align': 'center'})
+            .set_table_styles([{
+                'selector': 'th',
+                'props': [('text-align', 'center')]
+            }])
+        )
+
+        st.dataframe(styled_df, use_container_width=True)
+        
     else:
-        selected_products = (
+        # Produk terlaris: top 10
+        st.markdown(
+            "<div style='text-align: center; font-weight: bold; font-size: 18px;'>10 Produk yang Laku Dibeli</div>",
+            unsafe_allow_html=True
+        )
+
+        top_products = (
             filtered_df.groupby("NAMA BARANG")["QTY"].sum().sort_values(ascending=False).head(10)
         )
-        title = "10 Produk yang Laku Dibeli"
 
-    # Membuat bar chart
-    plt.figure(figsize=(8, 3))
-    ax = sns.barplot(x=selected_products.values, y=selected_products.index, color="#abce19")
+        # Membuat bar chart
+        plt.figure(figsize=(8, 3))
+        ax = sns.barplot(x=top_products.values, y=top_products.index, color="#abce19")
 
-    # Menghilangkan garis tepi
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_visible(False)
-    ax.spines["bottom"].set_visible(False)
+        # Menghilangkan garis tepi
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
 
-    # Menampilkan angka jika nilainya lebih dari 0
-    for i, v in enumerate(selected_products.values):
-        if v > 0:
-            ax.text(int(v), i, f"{int(v)}", color="black", va="center", fontsize=7)
+        # Menampilkan angka jika nilainya lebih dari 0
+        for i, v in enumerate(top_products.values):
+            if v > 0:
+                ax.text(int(v), i, f"{int(v)}", color="black", va="center", fontsize=7)
 
-    # Mengatur tampilan
-    plt.gca().set_facecolor("#F0F2F6")
-    plt.gcf().patch.set_facecolor("#F0F2F6")
-    plt.yticks(fontsize=8)
-    plt.xticks([])
-    plt.xlabel("")
-    plt.ylabel("")
-    plt.title(title, fontsize=10)
-
-    # Menampilkan grafik di Streamlit
-    st.pyplot(plt.gcf())
-
-    
+        # Mengatur tampilan
+        plt.gca().set_facecolor("#F0F2F6")
+        plt.gcf().patch.set_facecolor("#F0F2F6")
+        plt.yticks(fontsize=8)
+        plt.xticks([])
+        plt.xlabel("")
+        plt.ylabel("")
+        st.pyplot(plt.gcf())

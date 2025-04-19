@@ -5,9 +5,11 @@ def upload_data():
     st.header("Upload Data")
     uploaded_file = st.file_uploader(
         "Pilih file Excel", 
-        type=["xlsx", "xls"],
-        help="Pastikan data memiliki kolom ['TANGGAL', 'NO TRANSAKSI', 'NAMA BARANG', 'QTY']"
+        type=["xlsx", "xls"]
+        #help="Pastikan data memiliki kolom ['TANGGAL', 'NO TRANSAKSI', 'NAMA BARANG', 'QTY']"
     )
+
+    st.info("Pastikan data memiliki kolom ['TANGGAL', 'NO TRANSAKSI', 'NAMA BARANG', 'QTY']")
 
     if uploaded_file is not None:
         try:

@@ -8,7 +8,7 @@ from option_menu.upload_data.upload_data import upload_data
 from option_menu.upload_data.preprocessing import checking_data, preprocess_description_column
 from option_menu.eda.items import items
 from option_menu.eda.customers import customers
-from option_menu.pola_pembelian.apriori import data_apriori, apriori_algorithm, apriori_visual, analyze_rules
+from option_menu.pola_pembelian.apriori import data_apriori, apriori_algorithm, apriori_visual,analyze_rules
 
 st.set_page_config(layout="wide")
 
@@ -43,7 +43,7 @@ with st.sidebar:
             sac.MenuItem('Customers', icon='people-fill'),
             sac.MenuItem('Items', icon='box-seam-fill')]),
         sac.MenuItem('Pola Pembelian', icon='basket2-fill', description='Apriori Implementation'),
-        sac.MenuItem('Prediksi Stok Barang', icon='bar-chart-line-fill', description='Vector Autoregressive Implementation'),
+        sac.MenuItem('Prediksi Penjualan', icon='bar-chart-line-fill', description='Vector Autoregressive Implementation'),
         sac.MenuItem(type='divider'),
     ], size='md', open_all=True, color='white', variant='left-bar', indent=30)
     
@@ -94,8 +94,34 @@ elif selected_menu == "Pola Pembelian":
         basket_sets = data_apriori(st.session_state.df, st.session_state.start_date, st.session_state.end_date)
         table_result = apriori_algorithm(basket_sets)
         table_result = table_result[['antecedents', 'consequents', 'support', 'confidence', 'lift']]
-        st.dataframe(table_result, height=200)    
-        apriori_visual(table_result)
-        analyze_rules(table_result)
+        with st.expander("Table Result"):
+            st.dataframe(table_result, height=200)
+            st.caption("Keterangan Kolom")
+            st.caption("""
+            - **antecedents**: Item yang muncul terlebih dahulu.
+            - **consequents**: Item yang cenderung muncul setelah antecedents.
+            - **support**: Seberapa sering kombinasi tersebut muncul di seluruh transaksi.
+            - **confidence**: Seberapa besar kemungkinan item consequents muncul jika item antecedents sudah ada.
+            - **lift**: Mengukur seberapa kuat hubungan antara antecedents dan consequents. Nilai >1 berarti ada hubungan yang kuat.
+            """)
+
+        with st.expander("Filter Rules"):
+            rules_to_show = st.slider(
+                'Jumlah rules untuk divisualisasikan dan dianalisis',
+                min_value=1,
+                max_value=len(table_result),
+                value=3,
+                step=1,
+            )
+
+        apriori_visual(table_result, rules_to_show)
+        analyze_rules(table_result, rules_to_show)
+
+    else:
+        st.warning("Silakan unggah data terlebih dahulu di menu 'Upload Data'.")
+
+elif selected_menu == "Prediksi Penjualan":
+    if st.session_state.df is not None:
+        items(st.session_state.df, st.session_state.start_date, st.session_state.end_date, st.session_state.info_data)
     else:
         st.warning("Silakan unggah data terlebih dahulu di menu 'Upload Data'.")
