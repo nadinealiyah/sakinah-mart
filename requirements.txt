@@ -7,6 +7,8 @@ streamlit
 streamlit_option_menu
 streamlit_antd_components
 streamlit_shadcn_ui
-Image
+Pillow 
 networkx
-mlxtend
+plotly 
+tensorflow 
+scikit-learn 

@@ -1,46 +1,88 @@
+# preprocessing.py (REVISI)
+
 import pandas as pd
 import re
 import streamlit as st
 
-@st.cache_data
+# Helper functions (tidak perlu di-cache secara individual lagi)
 def check_columns(df, expected_columns):
+    """Memeriksa apakah semua kolom yang diharapkan ada di DataFrame."""
     missing_columns = [col for col in expected_columns if col not in df.columns]
     if missing_columns:
-        st.success(f"⚠️ Kolom berikut tidak ditemukan dalam data: {missing_columns}")
+        st.error(f"❌ Kolom berikut tidak ditemukan dalam data: {', '.join(missing_columns)}.")
         return False
-    #st.success("✅ Format kolom sesuai.")
     return True
 
-@st.cache_data
-def check_missing_values(df):
+def handle_missing_values(df):
+    """
+    Memeriksa missing values. Jika ada, tampilkan detailnya, hapus barisnya, 
+    dan kembalikan DataFrame yang sudah bersih.
+    """
     missing_counts = df.isnull().sum()
     total_missing = missing_counts.sum()
 
     if total_missing > 0:
-        st.success(f"⚠️ Terdapat {total_missing} missing values dalam data!")
-        return False
+        # Tampilkan peringatan yang bisa diperluas (expander)
+        with st.expander(f"⚠️ Ditemukan {total_missing} data kosong. Detail:"):
+            missing_details = missing_counts[missing_counts > 0]
+            for col, count in missing_details.items():
+                # Tampilkan baris (indeks) mana saja yang kosong untuk setiap kolom
+                rows_with_missing = df[df[col].isnull()].index.tolist()
+                st.write(f"- Kolom **'{col}'** memiliki **{count}** data kosong pada baris: `{rows_with_missing[:5]}`")
+        
+            # Hapus baris yang mengandung missing value
+            df_cleaned = df.dropna()
+            st.info(f"ℹ️ {total_missing} baris yang mengandung data kosong telah dihapus secara otomatis.")
+        return df_cleaned
+    
+    return df
 
-    #st.success("✅ Tidak ada missing values.")
-    return True
-
-@st.cache_data
 def fix_data_types(df, expected_dtypes):
+    """Mengonversi kolom ke tipe data yang diharapkan."""
     for col, expected_dtype in expected_dtypes.items():
         if col in df.columns:
             try:
-                if expected_dtype == 'datetime64[ns]':
+                if 'datetime' in expected_dtype:
                     df[col] = pd.to_datetime(df[col], errors='coerce')
-                elif expected_dtype == 'int64':
-                    df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
-                elif expected_dtype == 'object':
+                elif 'int' in expected_dtype:
+                    # Menggunakan float dulu untuk menangani nilai non-numerik yang menjadi NaN, lalu ke Int64
+                    df[col] = pd.to_numeric(df[col], errors='coerce')
+                    df[col] = df[col].astype('Int64') # Int64 bisa menangani NaN
+                elif 'object' in expected_dtype:
                     df[col] = df[col].astype(str)
             except Exception as e:
                 st.error(f"⚠️ Error saat mengonversi kolom '{col}': {e}")
-    #st.success("✅ Semua tipe data telah sesuai.")
     return df
 
-@st.cache_data
-def checking_data(df):
+def preprocess_text_column(df, column_name='NAMA BARANG'):
+    """Membersihkan kolom teks (NAMA BARANG)."""
+    def preprocess_text(text):
+        if pd.isnull(text) or not isinstance(text, str):
+            return '' # Kembalikan string kosong jika data bukan string atau null
+        
+        text = str(text)
+        text = re.sub(r'\s{3,}.*', '', text)  # Hapus spasi double dan teks setelahnya
+        text = re.sub(r'[^\w\s/]', ' ', text)  # Hapus tanda baca kecuali /
+        text = ' '.join(word for word in text.split() if not re.search(r'\d{5,}', word))  # Hapus kata dengan >= 5 angka
+        text = re.sub(r'\s+', ' ', text).strip().upper() # Hapus spasi ganda, trim, dan UPPERCASE
+        return text
+    
+    df[column_name] = df[column_name].apply(preprocess_text)
+    return df
+
+# --- FUNGSI UTAMA YANG DI-CACHE ---
+# Inilah fungsi yang akan kita panggil dari app.py
+@st.cache_data(show_spinner=False) # Spinner akan kita kontrol manual di app.py
+def process_uploaded_data(df_raw):
+    """
+    Pipeline lengkap untuk memproses DataFrame yang baru di-upload.
+    Menerapkan semua langkah preprocessing dan mengembalikan DataFrame yang bersih.
+    Fungsi ini di-cache untuk efisiensi.
+    """
+    # 1. Buat salinan untuk menghindari mengubah data asli di luar fungsi
+    df = df_raw.copy()
+    
+    # 2. Definisikan ekspektasi
     expected_columns = ['TANGGAL', 'NO TRANSAKSI', 'NAMA BARANG', 'QTY']
     expected_dtypes = {
         'TANGGAL': 'datetime64[ns]',
@@ -49,33 +91,18 @@ def checking_data(df):
         'QTY': 'int64'
     }
 
-    # 1. Cek format kolom
+    # 3. Jalankan pipeline preprocessing
     if not check_columns(df, expected_columns):
-        return None  # Jika format kolom salah, hentikan proses
+        return None  # Hentikan jika kolom utama tidak ada
 
-    # 2. Cek missing values
-    if not check_missing_values(df):
-        return None  # Jika ada missing values, hentikan proses
-
-    # 3. Perbaiki tipe data
     df = fix_data_types(df, expected_dtypes)
-
-    return df
-
-@st.cache_data
-def preprocess_description_column(df, column_name='NAMA BARANG'):
-    def preprocess_text(text):
-        if pd.isnull(text):  
-            return text
-        
-        text = re.sub(r'\s{3,}.*', '', text)  # Hapus spasi double dan teks setelahnya
-        text = re.sub(r'[^\w\s/]', ' ', text)  # Hapus tanda baca kecuali /
-        text = ' '.join(word for word in text.split() if not re.search(r'\d{5,}', word))  # Hapus kata dengan >= 5 angka
-        text = re.sub(r'\s+', ' ', text).strip()  # Hapus spasi ganda & trim
-        
-        return text
+    df = handle_missing_values(df)
+    df = preprocess_text_column(df, 'NAMA BARANG')
     
-    df[column_name] = df[column_name].apply(preprocess_text)
-    #st.success("✅ Kolom 'NAMA BARANG' telah dibersihkan.")
+    # Hapus transaksi tanpa item setelah preprocessing
+    df.dropna(subset=['NAMA BARANG', 'NO TRANSAKSI'], inplace=True)
+    df = df[df['NAMA BARANG'] != '']
+
+    # st.success("✅ Data berhasil divalidasi dan dibersihkan.")
     
     return df
