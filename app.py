@@ -244,12 +244,6 @@ elif selected_menu == "Pola Pembelian":
         from option_menu.pola_pembelian.apriori import generate_rules # Pastikan impor ini ada
 
         table_result = generate_rules(st.session_state.df)
-        
-        # Pembersihan kolom yang mungkin diperlukan setelah dibaca dari cache
-        table_result["antecedents"] = table_result["antecedents"].apply(lambda x: frozenset(eval(x)) if isinstance(x, str) else x)
-        table_result["consequents"] = table_result["consequents"].apply(lambda x: frozenset(eval(x)) if isinstance(x, str) else x)
-
-        table_result = table_result[['antecedents', 'consequents', 'support', 'confidence', 'lift']]
         st.session_state.apriori_table_result = table_result.copy()
 
         # Tampilkan UI asli Anda
@@ -288,9 +282,9 @@ elif selected_menu == "Tren dan Prediksi Penjualan":
     if st.session_state.df is None:
         st.warning("Silakan unggah data terlebih dahulu di menu 'Upload Data'.")
     else:
-        # <<< PERBAIKAN: Dapatkan kembali hasil Apriori dengan memanggil fungsi cache lagi.
-        # Ini sangat cepat dan memastikan data konsisten.
+        # Panggil fungsi cache. Hasilnya sudah dalam format yang benar.
         apriori_result = generate_rules(st.session_state.df)
+        
         if apriori_result is None or apriori_result.empty:
             st.warning("Jalankan analisis 'Pola Pembelian' atau pastikan data Anda dapat menghasilkan aturan asosiasi.")
         else:
