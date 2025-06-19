@@ -11,5 +11,5 @@ Pillow
 mlxtend
 networkx
 plotly 
-tensorflow 
+tensorflow-cpu
 scikit-learn 
