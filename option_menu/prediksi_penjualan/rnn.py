@@ -20,14 +20,19 @@ DEFAULT_BATCH_SIZE = 8
 DEFAULT_RECURRENT_DROPOUT = 0.2
 FORECAST_HORIZON_WEEKS = 4 
 
+# Di dalam rnn.py
+
 def get_all_items_from_apriori_rules(apriori_table_result):
+    """
+    Versi yang diperbaiki: Langsung memproses frozenset tanpa eval().
+    """
     all_items = set()
     if apriori_table_result is not None and not apriori_table_result.empty:
-        for _, row in apriori_table_result.iterrows():
-            antecedents = eval(row['antecedents']) if isinstance(row['antecedents'], str) else row['antecedents']
-            consequents = eval(row['consequents'], {'frozenset': frozenset}) if isinstance(row['consequents'], str) else row['consequents']
-            all_items.update(antecedents)
-            all_items.update(consequents)
+        # Iterasi langsung melalui kolom yang berisi objek frozenset
+        for item_set in apriori_table_result['antecedents']:
+            all_items.update(item_set)
+        for item_set in apriori_table_result['consequents']:
+            all_items.update(item_set)
     return list(all_items)
 
 # Fungsi ini dari kode asli Anda sudah benar menggunakan @st.cache_data
