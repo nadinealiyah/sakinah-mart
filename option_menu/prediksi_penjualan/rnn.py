@@ -2,8 +2,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-# import os
-# import logging
 import plotly.graph_objects as go
 from datetime import timedelta
 import tensorflow as tf

@@ -36,6 +36,7 @@ def generate_rules(df):
 # <<< FUNGSI LAMA ANDA, SEKARANG MENJADI BAGIAN TAMPILAN DI app.py >>>
 # Anda tidak perlu fungsi ini lagi di sini, karena UI akan ditangani di app.py
 # Saya tetap taruh di sini sebagai referensi, tetapi tidak akan dipanggil
+@st.cache_data
 def data_apriori(groceries, start_date, end_date):
     st.header("Pola Pembelian")
     days_selected = (end_date - start_date).days + 1
@@ -45,6 +46,7 @@ def data_apriori(groceries, start_date, end_date):
     pass
 
 # <<< FUNGSI VISUAL DAN ANALISIS ASLI ANDA (TIDAK ADA PERUBAHAN) >>>
+@st.cache_data
 def apriori_visual(rules, rules_to_show):
     G1 = nx.DiGraph()
     color_map = []
@@ -82,6 +84,7 @@ def apriori_visual(rules, rules_to_show):
     nx.draw_networkx_labels(G1, pos)
     st.pyplot(plt.gcf())
 
+@st.cache_data
 def analyze_rules(rules, rules_to_show):
     with st.expander("Detail Analisis"):
         st.caption("Dari Line Graph di atas, dapat dilihat beberapa kecenderungan menarik dari pelanggan: \n")
