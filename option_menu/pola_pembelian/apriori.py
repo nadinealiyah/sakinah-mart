@@ -5,7 +5,6 @@ import networkx as nx
 import numpy as np
 from mlxtend.frequent_patterns import apriori, association_rules
 
-
 def generate_rules(df):
     temp = df.copy()
     temp['qty_purchased'] = df['NO TRANSAKSI'].map(df['NO TRANSAKSI'].value_counts())
@@ -24,14 +23,12 @@ def generate_rules(df):
     
     return rules_mod(1, 1).sort_values(by='lift', ascending=False).reset_index(drop=True)
 
-
 def data_apriori(groceries, start_date, end_date):
     st.header("Pola Pembelian")
     days_selected = (end_date - start_date).days + 1
     day_text = "day" if days_selected == 1 else "days"
     st.caption(f"Based on data from {start_date} to {end_date} ({days_selected} {day_text}).")
     pass
-
 
 def apriori_visual(rules, rules_to_show):
     G1 = nx.DiGraph()
@@ -69,7 +66,6 @@ def apriori_visual(rules, rules_to_show):
         pos[p][1] += 0
     nx.draw_networkx_labels(G1, pos)
     st.pyplot(plt.gcf())
-
 
 def analyze_rules(rules, rules_to_show):
     with st.expander("Detail Analisis"):
