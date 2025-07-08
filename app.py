@@ -192,11 +192,11 @@ with st.sidebar:
     with cols[1]:
         logo_path = get_logo_pens()
         logo_image = Image.open(logo_path)
-        st.image(logo_image, width=100)
+        st.image(logo_image, width=50)
     with cols[2]:
         logo_path = get_logo_sakinah()
         logo_image = Image.open(logo_path)
-        st.image(logo_image, width=200)
+        st.image(logo_image, width=150)
 
 update_info_data()
 if selected_menu == "HOME":
