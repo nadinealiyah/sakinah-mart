@@ -192,7 +192,7 @@ with st.sidebar:
     with cols[1]:
         logo_path = get_logo_pens()
         logo_image = Image.open(logo_path)
-        st.image(logo_image, width=50)
+        st.image(logo_image, width=60)
     with cols[2]:
         logo_path = get_logo_sakinah()
         logo_image = Image.open(logo_path)
