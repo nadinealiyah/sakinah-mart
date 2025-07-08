@@ -196,14 +196,9 @@ with st.sidebar:
     with cols[2]:
         logo_path = get_logo_sakinah()
         logo_image = Image.open(logo_path)
-        st.image(logo_image, width=300)
-        
-# Inisialisasi info data di awal
+        st.image(logo_image, width=100)
+
 update_info_data()
-
-
-# --- Logic Halaman Utama ---
-
 if selected_menu == "HOME":
     project_description()
 
@@ -211,17 +206,13 @@ elif selected_menu == "Upload Data":
     df_uploaded = upload_data()
 
     if df_uploaded is not None:
-        # <<< PERBAIKAN: Panggil satu fungsi cache untuk memproses seluruh data
-        # Fungsi ini akan membaca, memeriksa, dan membersihkan data.
-        # Karena di-cache, proses ini hanya berjalan sekali untuk file yang sama.
         with st.spinner("Memeriksa dan memproses data untuk pertama kali..."):
             final_df = process_uploaded_data(df_uploaded)
         
         if final_df is not None:
             st.session_state.df = final_df
-            update_info_data() # Update info setelah df baru disimpan
+            update_info_data() 
         else:
-            # Jika process_uploaded_data mengembalikan None, berarti ada error
             st.error("Gagal memproses data. Silakan periksa format file Anda.")
 
 elif selected_menu == "Transactions":
@@ -238,10 +229,7 @@ elif selected_menu == "Items":
         
 elif selected_menu == "Pola Pembelian":
     if st.session_state.df is not None:
-        # <<< PERUBAHAN DI SINI >>>
-        # Kita panggil fungsi generate_rules baru yang sudah di-cache
-        # dan simpan hasilnya ke st.session_state agar sisa kode Anda tetap berfungsi
-        from option_menu.pola_pembelian.apriori import generate_rules # Pastikan impor ini ada
+        from option_menu.pola_pembelian.apriori import generate_rules 
 
         table_result = generate_rules(st.session_state.df)
         st.session_state.apriori_table_result = table_result.copy()
