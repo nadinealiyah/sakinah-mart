@@ -1,4 +1,3 @@
-# rnn.py (REVISI - FOKUS HANYA PADA CACHE)
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -18,26 +17,20 @@ DEFAULT_BATCH_SIZE = 8
 DEFAULT_RECURRENT_DROPOUT = 0.2
 FORECAST_HORIZON_WEEKS = 4 
 
-# Di dalam rnn.py
-
 def get_all_items_from_apriori_rules(apriori_table_result):
     """
     Versi yang diperbaiki: Langsung memproses frozenset tanpa eval().
     """
     all_items = set()
     if apriori_table_result is not None and not apriori_table_result.empty:
-        # Iterasi langsung melalui kolom yang berisi objek frozenset
         for item_set in apriori_table_result['antecedents']:
             all_items.update(item_set)
         for item_set in apriori_table_result['consequents']:
             all_items.update(item_set)
     return list(all_items)
 
-# Fungsi ini dari kode asli Anda sudah benar menggunakan @st.cache_data
 @st.cache_data(show_spinner=False)
 def preprocess_data_for_time_series_model(df_original, items_from_apriori):
-    # ... (Isi fungsi ini SAMA PERSIS seperti kode asli Anda) ...
-    # ... saya tidak akan menempelkannya lagi agar tidak terlalu panjang, biarkan seperti aslinya ...
     df = df_original.copy()
     df.rename(columns={'ITEM DESCRIPTION': 'NAMA BARANG', 'QUANTITY': 'QTY'}, inplace=True)
     df['TANGGAL'] = pd.to_datetime(df['TANGGAL'])
@@ -81,23 +74,19 @@ def preprocess_data_for_time_series_model(df_original, items_from_apriori):
     return df_final, final_product_columns
 
 def calculate_metrics(y_true, y_pred):
-    # ... (Isi fungsi ini SAMA PERSIS seperti kode asli Anda) ...
     mae = mean_absolute_error(y_true, y_pred)
     non_zero_indices = y_true != 0
     mape = np.mean(np.abs((y_true[non_zero_indices] - y_pred[non_zero_indices]) / y_true[non_zero_indices])) * 100 if np.sum(non_zero_indices) > 0 else np.nan
     return mae, mape
 
 def create_sequences(data, look_back):
-    # ... (Isi fungsi ini SAMA PERSIS seperti kode asli Anda) ...
     X, y = [], []
     for i in range(len(data) - look_back):
         X.append(data[i:(i + look_back), 0])
         y.append(data[i + look_back, 0])
     return np.array(X), np.array(y)
 
-
-# <<< PERUBAHAN UTAMA: @st.cache_resource menjadi @st.cache_data >>>
-@st.cache_data(show_spinner=False)
+@st.cache_resource(show_spinner=False)
 def train_and_forecast_rnn_for_item(df_final_preprocessed, selected_item, look_back=DEFAULT_LOOK_BACK, lstm_units=DEFAULT_LSTM_UNITS, epochs=DEFAULT_EPOCHS, batch_size=DEFAULT_BATCH_SIZE, recurrent_dropout=DEFAULT_RECURRENT_DROPOUT, forecast_horizon=FORECAST_HORIZON_WEEKS):
     # ... (Isi fungsi ini SAMA PERSIS seperti kode asli Anda, tidak ada yang berubah) ...
     tf.keras.backend.clear_session()
@@ -141,7 +130,6 @@ def train_and_forecast_rnn_for_item(df_final_preprocessed, selected_item, look_b
     return plot_df, df_future_forecast, metrics_result
 
 def visualize_rnn_forecast(plot_df, df_future_forecast, selected_item, metrics):
-    # ... (Isi fungsi ini SAMA PERSIS seperti kode asli Anda) ...
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=plot_df['TANGGAL'], y=plot_df['Actual Sales'], mode='lines',name='Penjualan Asli', line=dict(color='#004e26'), hovertemplate='<b>%{x|%d %b %Y}</b><br>Penjualan: %{y} pcs<extra></extra>'))
     if not df_future_forecast.empty:
@@ -157,7 +145,6 @@ def visualize_rnn_forecast(plot_df, df_future_forecast, selected_item, metrics):
 
 
 def show_rnn_prediction_page(df_full, apriori_table_result=None):
-    # ... (Isi fungsi ini SAMA PERSIS seperti kode asli Anda, tidak ada yang berubah) ...
     st.header("Tren dan Prediksi Penjualan")
     if not df_full.empty:
         df_full['TANGGAL'] = pd.to_datetime(df_full['TANGGAL'])

@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 from matplotlib import cm, colors 
 import networkx as nx
 import numpy as np
-import pandas as pd
-from collections import Counter
 from mlxtend.frequent_patterns import apriori, association_rules
 
 # <<< FUNGSI BARU UNTUK KALKULASI APRIORI YANG DI-CACHE >>>
