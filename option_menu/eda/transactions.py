@@ -1,12 +1,9 @@
-# eda/transactions.py (REVISI - FOKUS HANYA PADA CACHE)
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
 from helper.custom_metric_card import metric_card
 
-# <<< FUNGSI BARU UNTUK KALKULASI YANG DI-CACHE >>>
 @st.cache_data
 def get_transaction_calculations(df, start_date, end_date, days_selected):
     """Fungsi ini hanya melakukan semua perhitungan transaksi dan hasilnya di-cache."""
@@ -50,15 +47,10 @@ def get_transaction_calculations(df, start_date, end_date, days_selected):
         "weekend_weekday_counts": weekend_weekday_counts,
     }
 
-
-# <<< FUNGSI ASLI ANDA, DIMODIFIKASI SEDIKIT UNTUK MENGGUNAKAN CACHE >>>
 def transactions(df, start_date, end_date, info_data):
-    # Semua kode tampilan ini 100% milik Anda
     st.header("EDA - Transactions")
     
     placeholder = st.empty()
-
-    # Filter (Tampilan asli Anda)
     cols = st.columns(3)
     with cols[0]:
         with st.expander("Filter"):
@@ -78,11 +70,8 @@ def transactions(df, start_date, end_date, info_data):
     days_selected = (selected_end - selected_start).days + 1
     day_text = "day" if days_selected == 1 else "days"
     placeholder.caption(f"Based on data from {selected_start} to {selected_end} ({days_selected} {day_text}).")
-
-    # <<< PANGGIL FUNGSI YANG DI-CACHE >>>
     calc_results = get_transaction_calculations(df, pd.to_datetime(selected_start), pd.to_datetime(selected_end), days_selected)
 
-    # Metric Card (Tampilan asli Anda)
     cols = st.columns(3)
     with cols[0]:
         metric_card(
@@ -94,7 +83,7 @@ def transactions(df, start_date, end_date, info_data):
         )
     st.write("")
 
-    # Visualisasi hari-an (Kode plotting asli Anda)
+    # Visualisasi hari-an 
     transaction_per_day = calc_results['transaction_per_day']
     cols = st.columns(2)
     with cols[0]:
@@ -115,7 +104,7 @@ def transactions(df, start_date, end_date, info_data):
         plt.tight_layout()
         st.pyplot(plt.gcf())
 
-    # Visualisasi weekend vs weekday (Kode plotting asli Anda)
+    # Visualisasi weekend vs weekday 
     with cols[1]:
         st.markdown(
             "<div style='text-align: center; font-weight: bold; font-size: 18px;'>Aktivitas Transaksi: Weekend vs Weekday</div>",

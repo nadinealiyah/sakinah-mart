@@ -1,5 +1,3 @@
-# eda/items.py (REVISI - FOKUS HANYA PADA CACHE)
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -7,18 +5,13 @@ import streamlit as st
 from helper.custom_metric_card import metric_card
 import streamlit_toggle as tog
 
-# <<< FUNGSI BARU UNTUK KALKULASI YANG DI-CACHE >>>
 @st.cache_data
 def get_item_calculations(df, start_date, end_date, days_selected):
-    """Fungsi ini hanya melakukan semua perhitungan dan hasilnya di-cache."""
-    
-    # Filter data untuk rentang waktu yang dipilih
     filtered_df = df[(df['TANGGAL'] >= start_date) & (df['TANGGAL'] <= end_date)]
 
     # Menentukan rentang waktu sebelumnya
     prev_start_date = start_date - pd.Timedelta(days=days_selected)
-    prev_end_date = start_date - pd.Timedelta(days=1) # Revisi kecil di sini untuk perbandingan yang lebih akurat
-    
+    prev_end_date = start_date - pd.Timedelta(days=1) 
     prev_filtered_df = df[(df['TANGGAL'] >= prev_start_date) & (df['TANGGAL'] <= prev_end_date)]
 
     # Menghitung total dan jenis barang
@@ -45,7 +38,6 @@ def get_item_calculations(df, start_date, end_date, days_selected):
     least_products = filtered_products[filtered_products == 1].sort_values()
     top_products = filtered_products.sort_values(ascending=False).head(10)
 
-    # Mengembalikan semua hasil kalkulasi dalam satu paket (dictionary)
     return {
         "total_qty": total_qty,
         "unique_items": unique_items,
@@ -55,15 +47,12 @@ def get_item_calculations(df, start_date, end_date, days_selected):
         "top_products": top_products,
     }
 
-# <<< FUNGSI ASLI ANDA, DIMODIFIKASI SEDIKIT UNTUK MENGGUNAKAN CACHE >>>
 def items(df, start_date, end_date, info_data):
-    # Semua kode tampilan ini 100% milik Anda
     st.header("EDA - Items")
     df['TANGGAL'] = pd.to_datetime(df['TANGGAL'])
 
     placeholder = st.empty()
 
-    # Filter (Tampilan asli Anda)
     cols = st.columns(3)
     with cols[0]:
         with st.expander("Filter"):
@@ -77,20 +66,13 @@ def items(df, start_date, end_date, info_data):
             if len(dates_items) != 2:
                 st.warning("Please select start and end dates.")
                 st.stop()
-            
-            # Ambil tanggal dari input
             selected_start, selected_end = dates_items
 
-    # Hitung jumlah hari yang dipilih
     days_selected = (selected_end - selected_start).days + 1
     day_text = "day" if days_selected == 1 else "days"
     placeholder.caption(f"Based on data from {selected_start} to {selected_end} ({days_selected} {day_text}).")
-
-    # <<< PANGGIL FUNGSI YANG DI-CACHE UNTUK MENDAPATKAN SEMUA HASIL PERHITUNGAN >>>
-    # Ini akan berjalan cepat setelah pertama kali
     calc_results = get_item_calculations(df, pd.to_datetime(selected_start), pd.to_datetime(selected_end), days_selected)
 
-    # Metric Card (Tampilan asli Anda, menggunakan hasil dari cache)
     cols = st.columns(3)
     with cols[0]:
         metric_card(
@@ -110,7 +92,6 @@ def items(df, start_date, end_date, info_data):
         )
     st.write("")
 
-    # Toggle switch (Tampilan dan logika asli Anda)
     platform_toggle = st.session_state.get("product_toggle", False)
     product_toggle = tog.st_toggle_switch(
         label="Least" if platform_toggle else "Top",
@@ -122,7 +103,6 @@ def items(df, start_date, end_date, info_data):
         track_color="#05AF58"
     )
 
-    # Menentukan produk berdasarkan toggle (Menggunakan hasil dari cache)
     if product_toggle:
         least_products = calc_results['least_products']
         st.markdown(
@@ -143,7 +123,6 @@ def items(df, start_date, end_date, info_data):
             "<div style='text-align: center; font-weight: bold; font-size: 18px;'>10 Produk yang Laku Dibeli</div>",
             unsafe_allow_html=True
         )
-        # Membuat bar chart (Kode plotting asli Anda)
         plt.figure(figsize=(8, 3))
         ax = sns.barplot(x=top_products.values, y=top_products.index, color="#abce19")
         ax.spines["top"].set_visible(False)
