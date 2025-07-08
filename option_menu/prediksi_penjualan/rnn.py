@@ -3,10 +3,10 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from datetime import timedelta
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
-from tensorflow.keras.callbacks import EarlyStopping
+# import tensorflow as tf
+# from tensorflow.keras.models import Sequential
+# from tensorflow.keras.layers import LSTM, Dense
+# from tensorflow.keras.callbacks import EarlyStopping
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error
 
@@ -88,7 +88,12 @@ def create_sequences(data, look_back):
 
 @st.cache_resource(show_spinner=False)
 def train_and_forecast_rnn_for_item(df_final_preprocessed, selected_item, look_back=DEFAULT_LOOK_BACK, lstm_units=DEFAULT_LSTM_UNITS, epochs=DEFAULT_EPOCHS, batch_size=DEFAULT_BATCH_SIZE, recurrent_dropout=DEFAULT_RECURRENT_DROPOUT, forecast_horizon=FORECAST_HORIZON_WEEKS):
-    # ... (Isi fungsi ini SAMA PERSIS seperti kode asli Anda, tidak ada yang berubah) ...
+    
+    import tensorflow as tf
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.layers import LSTM, Dense
+    from tensorflow.keras.callbacks import EarlyStopping
+
     tf.keras.backend.clear_session()
     if df_final_preprocessed.empty or selected_item not in df_final_preprocessed.columns:
         return pd.DataFrame(), pd.DataFrame(), {'MAE': np.nan, 'MAPE': np.nan}
