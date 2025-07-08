@@ -5,10 +5,8 @@ import networkx as nx
 import numpy as np
 from mlxtend.frequent_patterns import apriori, association_rules
 
-@st.cache_data
+
 def generate_rules(df):
-    """Fungsi ini melakukan semua proses Apriori dan hasilnya di-cache."""
-    # Logika dari data_apriori asli Anda (tanpa st.header/st.caption)
     temp = df.copy()
     temp['qty_purchased'] = df['NO TRANSAKSI'].map(df['NO TRANSAKSI'].value_counts())
     basket = (temp.groupby(['NO TRANSAKSI', 'NAMA BARANG'])['qty_purchased']
@@ -18,7 +16,6 @@ def generate_rules(df):
         return 1 if x >= 1 else 0
     basket_sets = basket.applymap(encode)
     
-    # Logika dari apriori_algorithm asli Anda
     frequent_itemsets = apriori(basket_sets, min_support=0.0001, use_colnames=True, low_memory=True)
     rules = association_rules(frequent_itemsets, num_itemsets=len(frequent_itemsets))
     def rules_mod(lift, confidence):
@@ -27,7 +24,7 @@ def generate_rules(df):
     
     return rules_mod(1, 1).sort_values(by='lift', ascending=False).reset_index(drop=True)
 
-@st.cache_data
+
 def data_apriori(groceries, start_date, end_date):
     st.header("Pola Pembelian")
     days_selected = (end_date - start_date).days + 1
@@ -35,7 +32,7 @@ def data_apriori(groceries, start_date, end_date):
     st.caption(f"Based on data from {start_date} to {end_date} ({days_selected} {day_text}).")
     pass
 
-@st.cache_data
+
 def apriori_visual(rules, rules_to_show):
     G1 = nx.DiGraph()
     color_map = []
@@ -73,7 +70,7 @@ def apriori_visual(rules, rules_to_show):
     nx.draw_networkx_labels(G1, pos)
     st.pyplot(plt.gcf())
 
-@st.cache_data
+
 def analyze_rules(rules, rules_to_show):
     with st.expander("Detail Analisis"):
         st.caption("Dari Line Graph di atas, dapat dilihat beberapa kecenderungan menarik dari pelanggan: \n")

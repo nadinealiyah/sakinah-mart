@@ -1,5 +1,3 @@
-# preprocessing.py (REVISI)
-
 import pandas as pd
 import re
 import streamlit as st
@@ -102,7 +100,4 @@ def process_uploaded_data(df_raw):
     # Hapus transaksi tanpa item setelah preprocessing
     df.dropna(subset=['NAMA BARANG', 'NO TRANSAKSI'], inplace=True)
     df = df[df['NAMA BARANG'] != '']
-
-    # st.success("✅ Data berhasil divalidasi dan dibersihkan.")
-    
     return df
