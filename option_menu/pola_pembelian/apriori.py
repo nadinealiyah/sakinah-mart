@@ -1,5 +1,3 @@
-# apriori.py (REVISI - FOKUS HANYA PADA CACHE)
-
 import streamlit as st
 import matplotlib.pyplot as plt
 from matplotlib import cm, colors 
@@ -7,8 +5,6 @@ import networkx as nx
 import numpy as np
 from mlxtend.frequent_patterns import apriori, association_rules
 
-# <<< FUNGSI BARU UNTUK KALKULASI APRIORI YANG DI-CACHE >>>
-# Menggabungkan logika data_apriori dan apriori_algorithm
 @st.cache_data
 def generate_rules(df):
     """Fungsi ini melakukan semua proses Apriori dan hasilnya di-cache."""
@@ -31,19 +27,14 @@ def generate_rules(df):
     
     return rules_mod(1, 1).sort_values(by='lift', ascending=False).reset_index(drop=True)
 
-# <<< FUNGSI LAMA ANDA, SEKARANG MENJADI BAGIAN TAMPILAN DI app.py >>>
-# Anda tidak perlu fungsi ini lagi di sini, karena UI akan ditangani di app.py
-# Saya tetap taruh di sini sebagai referensi, tetapi tidak akan dipanggil
 @st.cache_data
 def data_apriori(groceries, start_date, end_date):
     st.header("Pola Pembelian")
     days_selected = (end_date - start_date).days + 1
     day_text = "day" if days_selected == 1 else "days"
     st.caption(f"Based on data from {start_date} to {end_date} ({days_selected} {day_text}).")
-    # Logika persiapan data sudah pindah ke generate_rules
     pass
 
-# <<< FUNGSI VISUAL DAN ANALISIS ASLI ANDA (TIDAK ADA PERUBAHAN) >>>
 @st.cache_data
 def apriori_visual(rules, rules_to_show):
     G1 = nx.DiGraph()
